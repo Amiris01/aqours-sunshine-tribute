@@ -1,7 +1,9 @@
+import { useEffect, useRef } from 'react'
 import { useReveal } from '../hooks'
 import { asset } from '../assets'
 import { useLang } from '../i18n/LanguageContext'
 import { subunits } from '../data'
+import { useGsap } from '../anim/useGsap'
 
 // Official sub-unit wordmark logos, keyed by unit name. Files in
 // /public/assets/logo/ (trimmed to content). All sit on a uniform light chip.
@@ -60,14 +62,34 @@ function UnitCard({ u }) {
 export default function SubUnits() {
   const [headRef, headShown] = useReveal()
   const { t } = useLang()
+  const gridRef = useRef(null)
+  const { gsap, ScrollTrigger, ready } = useGsap()
+
+  useEffect(() => {
+    if (!ready || !gsap || !ScrollTrigger) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const grid = gridRef.current
+    if (!grid) return
+    const cards = grid.querySelectorAll('.unit-card')
+    const tween = gsap.fromTo(
+      cards,
+      { autoAlpha: 0, y: 50, scale: 0.92, rotateZ: -1.5 },
+      {
+        autoAlpha: 1, y: 0, scale: 1, rotateZ: 0,
+        duration: 0.7, ease: 'back.out(1.4)', stagger: 0.12,
+        scrollTrigger: { trigger: grid, start: 'top 80%', toggleActions: 'play none none none' },
+      }
+    )
+    return () => { if (tween.scrollTrigger) tween.scrollTrigger.kill(); tween.kill() }
+  }, [ready, gsap, ScrollTrigger])
+
   return (
     <section className="section subunits">
       <div ref={headRef} className={`reveal${headShown ? ' in' : ''}`}>
-        <div className="eyebrow">{t('subunits.eyebrow')}</div>
         <h2 className="h2">{t('subunits.h2')}</h2>
         <p className="lead">{t('subunits.lead')}</p>
       </div>
-      <div className="unit-grid">
+      <div className="unit-grid" ref={gridRef}>
         {subunits.map((u) => (
           <UnitCard key={u.name} u={u} />
         ))}

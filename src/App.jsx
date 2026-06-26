@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState, lazy, Suspense } from 'react'
 import { members, discs } from './data'
 import { asset } from './assets'
-import { useReveal, useCountUp } from './hooks'
+import { useReveal } from './hooks'
 import { useLang } from './i18n/LanguageContext'
-import MemberSection from './components/MemberSection'
+import { useGsap } from './anim/useGsap'
+import { gsapReveal } from './anim/gsapReveal'
+import MemberShowcase from './components/MemberShowcase'
 import DiscCard from './components/DiscCard'
 import NowPlayingBar from './components/NowPlayingBar'
 import SubUnits from './components/SubUnits'
@@ -16,10 +18,8 @@ import Waves from './components/Waves'
 const WaterBackground = lazy(() => import('./components/WaterBackground'))
 
 // --- Tweakable options (exposed in the prototype) --------------------------
-//   dotNav   : show/hide the right-side member dot rail
 //   parallax : 'Strong' | 'Subtle' | 'Off'  -> hero parallax intensity
 const CONFIG = {
-  dotNav: true,
   parallax: 'Strong',
 }
 const PARALLAX_MULT = { Strong: 1, Subtle: 0.45, Off: 0 }
@@ -35,7 +35,7 @@ function FootWave() {
 }
 
 export default function App() {
-  const { dotNav, parallax } = CONFIG
+  const { parallax } = CONFIG
   const mult = PARALLAX_MULT[parallax] ?? 1
   const { t, switching } = useLang()
 
@@ -43,25 +43,22 @@ export default function App() {
   const sunRef = useRef(null)
   const heroContentRef = useRef(null)
   const cueRef = useRef(null)
-  const progressRef = useRef(null)
-  const memberRefs = useRef([])
-
-  const [activeDot, setActiveDot] = useState(-1)
+  // Roster carousel track (declared up here so the GSAP reveal effect can read it).
+  const rosterTrackRef = useRef(null)
   // Index into `discs` of the currently-docked track, or -1 when closed.
   const [playingIndex, setPlayingIndex] = useState(-1)
   // Hero WebGL canvas mounts only while the hero is on screen (perf).
   const [heroVisible, setHeroVisible] = useState(true)
 
-  // About block reveal drives the count-up stats.
   const [aboutRef, aboutShown] = useReveal()
-  const memberCount = useCountUp(9, aboutShown)
-  const subunitCount = useCountUp(3, aboutShown)
 
   const [membersHeadRef, membersHeadShown] = useReveal()
   const [discHeadRef, discHeadShown] = useReveal()
   const [footRef, footShown] = useReveal()
 
-  // --- Hero parallax + progress bar (direct style writes on scroll) --------
+  const { gsap, ScrollTrigger, ready: gsapReady } = useGsap()
+
+  // --- Hero parallax (direct style writes on scroll) -----------------------
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY
@@ -73,43 +70,59 @@ export default function App() {
       }
       if (cueRef.current) cueRef.current.style.opacity = Math.max(0, 1 - y / 240)
       setHeroVisible(y < window.innerHeight)
-      if (progressRef.current) {
-        const h = document.documentElement.scrollHeight - window.innerHeight
-        progressRef.current.style.transform = `scaleX(${h > 0 ? y / h : 0})`
-      }
     }
     window.addEventListener('scroll', onScroll, { passive: true })
     onScroll()
     return () => window.removeEventListener('scroll', onScroll)
   }, [mult])
 
-  // --- Dot rail active state (which member straddles the viewport middle) ---
+  // --- GSAP scroll-reveal animations: About stagger + Roster deal-in (Task 6)
+  //     + Discography vinyl spin + disc cascade + Footer rise (Task 8) --------
   useEffect(() => {
-    if (!dotNav) return
-    const sections = memberRefs.current.filter(Boolean)
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) setActiveDot(Number(e.target.dataset.idx))
-        })
-      },
-      { rootMargin: '-45% 0px -45% 0px', threshold: 0 }
-    )
-    sections.forEach((el) => io.observe(el))
-    return () => io.disconnect()
-  }, [dotNav])
+    if (!gsapReady || !gsap || !ScrollTrigger) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const cleanups = []
 
-  const scrollToMember = (i) => {
-    const t = memberRefs.current[i]
-    if (t)
-      window.scrollTo({
-        top: window.scrollY + t.getBoundingClientRect().top - 90,
-        behavior: 'smooth',
-      })
-  }
+    // About: stagger the heading + lead + footnote.
+    const aboutEl = aboutRef.current
+    if (aboutEl) {
+      const kids = aboutEl.querySelectorAll('.h2, .lead, .about-foot')
+      cleanups.push(gsapReveal(gsap, ScrollTrigger, aboutEl, { children: kids, stagger: 0.12 }))
+    }
+    // Task 6 — Roster: deal the cards in L->R.
+    const track = rosterTrackRef.current
+    if (track) {
+      const cards = track.querySelectorAll('.roster-item')
+      cleanups.push(gsapReveal(gsap, ScrollTrigger, track, { children: cards, stagger: 0.06, y: 30 }))
+    }
+
+    // Task 8 — Discography: spin the vinyl in + cascade the disc tiles.
+    const vinyl = document.querySelector('.disc-vinyl')
+    if (vinyl) {
+      const t = gsap.fromTo(
+        vinyl,
+        { autoAlpha: 0, rotate: -90, scale: 0.8 },
+        { autoAlpha: 0.85, rotate: 0, scale: 1, duration: 1.1, ease: 'power2.out',
+          scrollTrigger: { trigger: '.disc-section', start: 'top 75%', toggleActions: 'play none none none' } }
+      )
+      cleanups.push(() => { if (t.scrollTrigger) t.scrollTrigger.kill(); t.kill() })
+    }
+    const discGrid = document.querySelector('.disc')
+    if (discGrid) {
+      const tiles = discGrid.querySelectorAll('.disc-tile')
+      cleanups.push(gsapReveal(gsap, ScrollTrigger, discGrid, { children: tiles, stagger: 0.07, y: 40 }))
+    }
+    // Task 8 — Footer: mark/sub/note rise together.
+    const foot = document.querySelector('.foot .reveal') || document.querySelector('.foot')
+    if (foot) {
+      const kids = foot.querySelectorAll('.foot-mark, .foot-sub, .foot-note')
+      cleanups.push(gsapReveal(gsap, ScrollTrigger, foot, { children: kids, stagger: 0.1 }))
+    }
+
+    return () => cleanups.forEach((fn) => fn())
+  }, [gsapReady, gsap, ScrollTrigger])
 
   // --- Roster carousel: scroll the track by ~one card per arrow press ------
-  const rosterTrackRef = useRef(null)
   const scrollRoster = (dir) => {
     const track = rosterTrackRef.current
     if (!track) return
@@ -121,22 +134,7 @@ export default function App() {
 
   return (
     <div className={`page${switching ? ' lang-switching' : ''}`}>
-      <div className="progress" ref={progressRef} />
       <LangSwitch />
-
-      {dotNav && (
-        <div className="dots">
-          {members.map((m, i) => (
-            <button
-              key={m.num}
-              className={`dot${activeDot === i ? ' on' : ''}`}
-              style={{ '--c': m.color }}
-              aria-label={m.name}
-              onClick={() => scrollToMember(i)}
-            />
-          ))}
-        </div>
-      )}
 
       {/* --- Hero --- */}
       <div className="hero">
@@ -174,23 +172,9 @@ export default function App() {
       {/* --- About / Intro --- */}
       <section className="section pace-tight">
         <div ref={aboutRef} className={`reveal${aboutShown ? ' in' : ''}`}>
-          <div className="eyebrow">{t('about.eyebrow')}</div>
           <h2 className="h2">{t('about.h2')}</h2>
           <p className="lead">{t('about.lead')}</p>
-          <div className="stats">
-            <div>
-              <div className="stat-num">{memberCount}</div>
-              <div className="stat-label">{t('about.stat.members')}</div>
-            </div>
-            <div>
-              <div className="stat-num blue">{subunitCount}</div>
-              <div className="stat-label">{t('about.stat.subunits')}</div>
-            </div>
-            <div>
-              <div className="stat-num">2015</div>
-              <div className="stat-label">{t('about.stat.debut')}</div>
-            </div>
-          </div>
+          <p className="about-foot">{t('about.foot')}</p>
         </div>
       </section>
 
@@ -199,12 +183,11 @@ export default function App() {
         ref={membersHeadRef}
         className={`members-head reveal${membersHeadShown ? ' in' : ''}`}
       >
-        <div className="eyebrow">{t('members.eyebrow')}</div>
         <h2 className="h2">{t('members.h2')}</h2>
         <p className="lead">{t('members.lead')}</p>
       </div>
 
-      {/* --- Roster carousel: swipe / arrow through the nine, click to jump --- */}
+      {/* --- Roster carousel: display strip of the nine, swipe / arrow to scroll --- */}
       <div className="roster-carousel">
         <button
           type="button"
@@ -212,18 +195,11 @@ export default function App() {
           aria-label="Previous members"
           onClick={() => scrollRoster(-1)}
         >
-          ‹
+          <span className="chevron" aria-hidden="true" />
         </button>
         <div className="roster-track" ref={rosterTrackRef}>
-          {members.map((m, i) => (
-            <button
-              key={m.num}
-              type="button"
-              className="roster-item"
-              style={{ '--c': m.color }}
-              onClick={() => scrollToMember(i)}
-              aria-label={`Jump to ${m.name}`}
-            >
+          {members.map((m) => (
+            <div key={m.num} className="roster-item" style={{ '--c': m.color }}>
               <span className="roster-stage">
                 {m.portrait && (
                   <img className="roster-img" src={m.portrait} alt={m.name} loading="lazy" />
@@ -235,7 +211,7 @@ export default function App() {
                 )}
                 <span className="roster-name">{m.name.split(' ')[0]}</span>
               </span>
-            </button>
+            </div>
           ))}
         </div>
         <button
@@ -244,21 +220,12 @@ export default function App() {
           aria-label="Next members"
           onClick={() => scrollRoster(1)}
         >
-          ›
+          <span className="chevron" aria-hidden="true" />
         </button>
       </div>
 
-      {/* --- Member sections: full-width bands, alternating L/R --- */}
-      {members.map((m, i) => (
-        <MemberSection
-          key={m.num}
-          m={m}
-          idx={i}
-          ref={(el) => {
-            memberRefs.current[i] = el
-          }}
-        />
-      ))}
+      {/* --- Member showcase: pinned cinematic slideshow (desktop) --- */}
+      <MemberShowcase members={members} />
 
       {/* --- Sub-units --- */}
       <SubUnits />
@@ -270,7 +237,6 @@ export default function App() {
           ref={discHeadRef}
           className={`disc-head reveal${discHeadShown ? ' in' : ''}`}
         >
-          <div className="eyebrow">{t('disc.eyebrow')}</div>
           <h2 className="h2">{t('disc.h2')}</h2>
         </div>
         <div className="disc">

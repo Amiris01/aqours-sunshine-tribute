@@ -46,11 +46,11 @@ const CARD_SIDE = {
 
 /**
  * A full-width member profile band, themed to the member's image color via
- * the `--c` custom property, alternating L/R via `m.flip`, anchored by an
- * oversized numeral. The outer <section> ref is forwarded so the page can
- * observe it for the dot-rail active state and smooth-scroll targets.
+ * the `--c` custom property, alternating card side L/R. In `showcase` mode the
+ * MemberShowcase wrapper controls the band's visibility (pinned slideshow);
+ * otherwise it reveals on scroll. The outer <section> ref is forwarded.
  */
-const MemberSection = forwardRef(function MemberSection({ m, idx }, sectionRef) {
+const MemberSection = forwardRef(function MemberSection({ m, idx, showcase = false }, sectionRef) {
   const [revealRef, shown] = useReveal()
   const { t } = useLang()
   const banner = BANNERS[m.num] ? asset(`assets/banner/${BANNERS[m.num]}.webp`) : null
@@ -68,7 +68,7 @@ const MemberSection = forwardRef(function MemberSection({ m, idx }, sectionRef) 
     <section
       ref={setRefs}
       data-idx={idx}
-      className={`msec reveal${shown ? ' in' : ''}${banner ? ' has-banner' : ''} card-${cardSide}`}
+      className={`msec${showcase ? ' showcase-slide' : ` reveal${shown ? ' in' : ''}`}${banner ? ' has-banner' : ''} card-${cardSide}`}
       style={{ '--c': m.color }}
     >
       {banner && (
@@ -80,20 +80,18 @@ const MemberSection = forwardRef(function MemberSection({ m, idx }, sectionRef) 
             aria-label={`${m.name} feature artwork`}
           />
           <div className="msec-scrim" />
-          <div className="msec-glow" aria-hidden="true" />
         </>
       )}
       <div className="mwrap">
         <div className="minfo">
-          <div className="accent" />
+          <div className="m-index">
+            <span className="m-index-unit">{m.unit}</span>
+          </div>
           <h3 className="m-name">{m.name}</h3>
           <div className="m-jp">{m.jp}</div>
-          <div className="chips">
-            <span className="chip unit">{m.unit}</span>
-            <span className="chip oshi">
-              <span className="swatch" />
-              {m.colorName}
-            </span>
+          <div className="m-color">
+            <span className="m-color-dot" />
+            {m.colorName}
           </div>
           <p className="m-blurb">{t(`blurb.${m.num}`)}</p>
           <div className="pgrid">

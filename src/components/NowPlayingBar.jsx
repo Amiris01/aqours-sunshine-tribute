@@ -214,7 +214,13 @@ export default function NowPlayingBar({ tracks, index, onIndexChange, onClose })
             onClick={toggle}
             aria-label={paused ? t('np.play') : t('np.pause')}
           >
-            {loading ? <span className="np-spinner" /> : paused ? '▶' : '❚❚'}
+            {loading ? (
+              <span className="np-spinner" />
+            ) : paused ? (
+              <span className="np-glyph np-glyph-play">▶</span>
+            ) : (
+              <span className="np-glyph">❚❚</span>
+            )}
           </button>
           <button
             type="button"

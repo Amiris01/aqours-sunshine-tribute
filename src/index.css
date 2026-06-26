@@ -43,18 +43,6 @@ body {
   .pace-bleed { padding-block: 88px; }
 }
 
-/* --- Scroll progress bar ------------------------------------------------- */
-.progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 5px;
-  width: 100%;
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  background: linear-gradient(90deg, #9fd6f2, #6fc5f4, #2f6f93);
-  z-index: 60;
-}
 
 /* --- Hero WebGL canvas host (Three.js water surface) --------------------
    The host always keeps its full size (never display:none) so the renderer
@@ -323,33 +311,14 @@ body {
   margin-top: 22px;
 }
 
-/* --- About / stats ------------------------------------------------------- */
-.stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(34px, 5vw, 60px);
-  margin-top: 54px;
-}
-.stat-num {
+/* --- About footnote (replaces the count-up stats block) ------------------ */
+.about-foot {
+  margin-top: 28px;
   font-family: 'Fredoka';
-  font-weight: 600;
-  font-size: clamp(44px, 6vw, 78px);
-  line-height: 1;
-  background: linear-gradient(120deg, #ff7a59, #ffcf3f);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.stat-num.blue {
-  background: linear-gradient(120deg, #36b6f0, #0077b6);
-  -webkit-background-clip: text;
-  background-clip: text;
-}
-.stat-label {
-  font-size: 15px;
+  font-weight: 500;
+  font-size: clamp(14px, 1.5vw, 17px);
+  letter-spacing: 0.01em;
   color: #5a7a8a;
-  margin-top: 8px;
-  font-weight: 700;
 }
 
 /* --- Members header ------------------------------------------------------ */
@@ -368,7 +337,7 @@ body {
   margin-right: auto;
 }
 
-/* --- Roster carousel: nine portrait cards, swipe/arrow, click to jump --- */
+/* --- Roster carousel: nine portrait cards (display only), swipe/arrow scroll --- */
 .roster-carousel {
   position: relative;
   display: flex;
@@ -396,19 +365,34 @@ body {
 /* Custom prev/next arrows. */
 .roster-arrow {
   flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 48px;
   height: 48px;
+  padding: 0;
   border: 0;
   cursor: pointer;
   border-radius: 50%;
-  font-family: 'Fredoka', sans-serif;
-  font-size: 30px;
-  line-height: 1;
-  color: #143a4e;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 12px 28px -14px rgba(20, 58, 78, 0.6);
   transition: transform 0.25s ease, background 0.25s ease;
   z-index: 3;
+}
+/* CSS-drawn chevron — geometrically exact, so it always centers cleanly
+   (font glyphs like ‹ › carry uneven side-bearing and look off-center). */
+.roster-arrow .chevron {
+  width: 11px;
+  height: 11px;
+  border-style: solid;
+  border-color: #143a4e;
+  border-width: 3px 3px 0 0;
+}
+.roster-arrow.next .chevron {
+  transform: translateX(-2px) rotate(45deg); /* points right */
+}
+.roster-arrow.prev .chevron {
+  transform: translateX(2px) rotate(-135deg); /* points left */
 }
 .roster-arrow:hover,
 .roster-arrow:focus-visible {
@@ -429,8 +413,7 @@ body {
   gap: 0;
   padding: 0;
   border: 0;
-  cursor: pointer;
-  border-radius: 26px;
+  border-radius: 6px;
   overflow: hidden;
   isolation: isolate;
   background: linear-gradient(
@@ -439,17 +422,6 @@ body {
     color-mix(in srgb, var(--c) 92%, #0a2030) 100%
   );
   box-shadow: 0 24px 46px -26px color-mix(in srgb, var(--c) 80%, rgba(20, 58, 78, 0.7));
-  transition: transform 0.4s cubic-bezier(0.2, 0.85, 0.25, 1), box-shadow 0.4s ease;
-}
-.roster-item:hover,
-.roster-item:focus-visible {
-  transform: translateY(-12px);
-  box-shadow: 0 40px 70px -26px color-mix(in srgb, var(--c) 85%, rgba(20, 58, 78, 0.7));
-  outline: none;
-}
-.roster-item:focus-visible {
-  box-shadow: 0 40px 70px -26px color-mix(in srgb, var(--c) 85%, rgba(20, 58, 78, 0.7)),
-    0 0 0 3px color-mix(in srgb, var(--c) 60%, #ffffff);
 }
 /* Portrait "stage": the figure on a luminous radial wash. */
 .roster-stage {
@@ -470,11 +442,6 @@ body {
   object-fit: contain;
   object-position: bottom center;
   filter: drop-shadow(0 10px 14px rgba(8, 30, 46, 0.35));
-  transition: transform 0.45s cubic-bezier(0.2, 0.85, 0.25, 1);
-}
-.roster-item:hover .roster-img,
-.roster-item:focus-visible .roster-img {
-  transform: scale(1.07) translateY(-4px);
 }
 /* Name footer with frosted bar + emblem. */
 .roster-foot {
@@ -523,7 +490,10 @@ body {
   .roster-arrow {
     width: 40px;
     height: 40px;
-    font-size: 26px;
+  }
+  .roster-arrow .chevron {
+    width: 9px;
+    height: 9px;
   }
 }
 
@@ -562,6 +532,75 @@ body {
   align-items: stretch;
   isolation: isolate;
 }
+
+/* ===== Member showcase (pinned cinematic slideshow) ===================== */
+.member-showcase { position: relative; }
+
+/* Desktop pinned mode: the stage is one viewport tall; slides stack absolutely
+   (set by GSAP). The wrapper reserves a viewport so pin has somewhere to sit. */
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  .member-showcase { height: 100vh; height: 100svh; overflow: hidden; }
+  .member-showcase .showcase-slide {
+    min-height: 100vh; min-height: 100svh;
+    will-change: transform, opacity;
+  }
+  /* GSAP scrubs the card x and the banner scale every frame in pinned mode;
+     their CSS transitions would lag/smear that motion, so disable them here
+     (GSAP owns these transforms while pinned). */
+  .member-showcase .showcase-slide .minfo,
+  .member-showcase .showcase-slide .msec-banner {
+    transition: none;
+  }
+  /* In the full-viewport pinned frame the bottom-hugged card (tuned for the
+     ~700px band) drops too low and leaves a gap above it. Center it vertically
+     instead so it stays balanced regardless of viewport height. */
+  .member-showcase .showcase-slide.has-banner .mwrap {
+    align-items: center;
+    padding-block: clamp(28px, 4vh, 72px);
+  }
+  /* Shrink-to-fit: a content-heavy member can be taller than the full-viewport
+     pinned frame. Rather than scroll the card, compact its inner spacing and
+     type (scaling with viewport height) so every member fits on screen without
+     overflow. Scoped to pinned desktop mode — the normal bands are untouched. */
+  .member-showcase .showcase-slide.has-banner .minfo {
+    padding: clamp(20px, 2.4vh, 36px) clamp(22px, 2vw, 40px);
+  }
+  .member-showcase .showcase-slide.has-banner .m-name {
+    font-size: clamp(28px, 3.4vh, 50px);
+  }
+  .member-showcase .showcase-slide.has-banner .m-jp { margin-top: 5px; }
+  .member-showcase .showcase-slide.has-banner .chips { margin-top: clamp(8px, 1.2vh, 14px); }
+  .member-showcase .showcase-slide.has-banner .m-blurb {
+    font-size: clamp(14px, 1.7vh, 18px);
+    line-height: 1.5;
+    margin-top: clamp(8px, 1.4vh, 16px);
+  }
+  .member-showcase .showcase-slide.has-banner .pgrid {
+    gap: clamp(6px, 1vh, 14px) 28px;
+    margin-top: clamp(10px, 1.6vh, 22px);
+    padding-top: clamp(10px, 1.6vh, 20px);
+  }
+  .member-showcase .showcase-slide.has-banner .m-sign-wrap {
+    margin-top: clamp(8px, 1.4vh, 18px);
+  }
+  .member-showcase .showcase-slide.has-banner .m-sign {
+    height: clamp(40px, 5vh, 64px);
+  }
+}
+
+/* On short viewports the pinned cards need the most aggressive compaction —
+   trim the blurb (least essential copy) so the profile grid + signature fit. */
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) and (max-height: 720px) {
+  .member-showcase .showcase-slide.has-banner .m-blurb {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Mobile / reduced-motion: members are normal full-flow bands (existing look). */
+
 .msec-banner {
   position: absolute;
   inset: 0;
@@ -590,23 +629,10 @@ body {
     radial-gradient(120% 90% at 50% 40%, transparent 52%, rgba(6, 20, 34, 0.45) 100%),
     linear-gradient(180deg, rgba(6, 20, 34, 0.32) 0%, transparent 18%, transparent 78%, rgba(6, 20, 34, 0.4) 100%);
 }
-/* A color bloom on the card side, giving the band a luminous signature. */
-.msec-glow {
-  position: absolute;
-  z-index: 1;
-  bottom: -10%;
-  left: -8%;
-  width: 56%;
-  height: 90%;
-  pointer-events: none;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 60%, transparent), transparent 72%);
-  opacity: 0.55;
-  mix-blend-mode: screen;
-}
-.msec.card-right .msec-glow {
-  left: auto;
-  right: -8%;
-}
+/* Glow removed (flat logbook direction): the member's color now reads as a
+   solid spine on the card, not a luminous bloom. .msec-glow is no longer
+   rendered; this rule neutralizes it if any stale node remains. */
+.msec-glow { display: none; }
 /* Color-tinted scrim: a focused wash under the card edge only, fading to fully
    clear well before center so the character stays visible. Default = info on
    the LEFT; .flip mirrors it to the right. */
@@ -643,40 +669,22 @@ body {
 .msec.has-banner.card-right .mwrap {
   justify-content: flex-end;
 }
+/* Flat ink card: a solid deep-sea panel (no blur, no glow) with a single
+   solid spine in the member's color along the inner edge. Reads like a card
+   pasted into a logbook, not frosted glass. */
 .msec.has-banner .minfo {
   position: relative;
   flex: 0 1 min(480px, 90%);
-  background: color-mix(in srgb, var(--deepest) 52%, transparent);
-  backdrop-filter: blur(16px) saturate(1.2);
-  -webkit-backdrop-filter: blur(16px) saturate(1.2);
-  border: 1px solid color-mix(in srgb, #ffffff 24%, transparent);
-  border-radius: 28px;
+  background: color-mix(in srgb, var(--deepest) 92%, #000);
+  border: 0;
+  border-radius: 20px;
   padding: clamp(28px, 2.8vw, 44px);
-  box-shadow:
-    0 40px 90px -34px rgba(6, 20, 34, 0.85),
-    inset 0 1px 0 color-mix(in srgb, #ffffff 30%, transparent),
-    0 0 60px -20px color-mix(in srgb, var(--c) 55%, transparent);
-  transition: transform 0.5s cubic-bezier(0.2, 0.85, 0.25, 1),
-    box-shadow 0.5s ease;
+  box-shadow: 0 24px 60px -30px rgba(6, 20, 34, 0.7);
+  transition: transform 0.4s cubic-bezier(0.2, 0.85, 0.25, 1);
 }
+/* (Color spine removed.) */
 .msec.has-banner:hover .minfo {
-  transform: translateY(-6px);
-  box-shadow:
-    0 54px 110px -34px rgba(6, 20, 34, 0.9),
-    inset 0 1px 0 color-mix(in srgb, #ffffff 36%, transparent),
-    0 0 80px -16px color-mix(in srgb, var(--c) 70%, transparent);
-}
-/* Luminous top accent line on the card. */
-.msec.has-banner .minfo::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: clamp(28px, 2.8vw, 44px);
-  width: 54px;
-  height: 4px;
-  border-radius: 99px;
-  background: linear-gradient(90deg, var(--c), color-mix(in srgb, var(--c) 30%, #ffffff));
-  box-shadow: 0 0 16px color-mix(in srgb, var(--c) 80%, transparent);
+  transform: translateY(-4px);
 }
 /* Character signature at the bottom of the card — like a real autograph.
    It sits on the OPPOSITE side from the card edge: left card -> sign right,
@@ -692,11 +700,11 @@ body {
 .msec.card-left .m-sign-wrap { justify-content: flex-end; }
 .msec.card-right .m-sign-wrap { justify-content: flex-start; }
 .m-sign {
-  height: clamp(52px, 6vw, 76px);
+  height: clamp(64px, 7vw, 92px);
   width: auto;
-  max-width: 72%;
+  max-width: 78%;
   object-fit: contain;
-  filter: drop-shadow(0 2px 10px color-mix(in srgb, var(--c) 50%, transparent));
+  /* Autograph in the member's ink color — flat, no glow. */
   transition: transform 0.4s cubic-bezier(0.2, 0.85, 0.25, 1);
 }
 /* Left card → sign on the right, tilt anchored to its right edge. */
@@ -717,11 +725,42 @@ body {
 .msec.card-right.has-banner:hover .m-sign {
   transform: rotate(3deg) scale(1.04);
 }
-/* Light typography on the frosted card. */
+/* Member unit label — the sub-unit name as a small structural eyebrow. */
+.m-index {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.m-index-unit {
+  font-family: 'Fredoka';
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #ffffff 72%, transparent);
+}
+/* Color-name line (replaces the chip pair). */
+.m-color {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 14px;
+  font-family: 'Fredoka';
+  font-weight: 500;
+  font-size: 14px;
+  color: color-mix(in srgb, #ffffff 84%, transparent);
+}
+.m-color-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+/* Typography on the flat ink card. */
 .msec.has-banner .m-name {
   color: #ffffff;
   font-size: clamp(34px, 4.8vw, 60px);
-  text-shadow: 0 4px 24px color-mix(in srgb, var(--c) 55%, transparent);
 }
 .msec.has-banner .m-jp {
   color: color-mix(in srgb, var(--c) 36%, #e7f3fb);
@@ -855,6 +894,13 @@ body {
   transform: none;
 }
 
+/* GSAP-driven sections start hidden (autoAlpha) only where GSAP will run:
+   wide viewport AND motion allowed. Elsewhere they stay fully visible so the
+   CSS .reveal path (or static render) governs instead. */
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  .gsap-hide { visibility: hidden; opacity: 0; }
+}
+
 /* --- Discography (album-art tiles) -------------------------------------- */
 .disc {
   display: grid;
@@ -880,7 +926,7 @@ body {
   border: 0;
   background: none;
   cursor: pointer;
-  border-radius: 22px;
+  border-radius: 6px;
   font: inherit;
   text-align: left;
   -webkit-tap-highlight-color: transparent;
@@ -888,7 +934,7 @@ body {
 .disc-art {
   position: relative;
   aspect-ratio: 1;
-  border-radius: 22px;
+  border-radius: 6px;
   overflow: hidden;
   background: #dceaf2;
   box-shadow: 0 22px 44px -28px rgba(20, 58, 78, 0.7);
@@ -1033,20 +1079,9 @@ body {
   overflow: hidden;
   margin: 40px auto 0;
   padding-block: clamp(72px, 9vw, 128px);
-  background: color-mix(in srgb, var(--deepest) 88%, transparent);
-  border-radius: 36px;
+  background: color-mix(in srgb, var(--deepest) 96%, #000);
+  border-radius: 6px;
   isolation: isolate;
-}
-/* Warm + cool light wash across the band for depth. */
-.disc-section::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(120% 80% at 12% -10%, rgba(255, 160, 90, 0.18), transparent 55%),
-    radial-gradient(120% 90% at 92% 110%, rgba(54, 182, 240, 0.22), transparent 55%);
-  pointer-events: none;
 }
 .disc-section .h2,
 .disc-section .eyebrow {
@@ -1116,12 +1151,10 @@ body {
   max-width: 1120px;
   margin: 0 auto 14px;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(16px) saturate(1.2);
-  -webkit-backdrop-filter: blur(16px) saturate(1.2);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 20px;
-  box-shadow: 0 24px 60px -20px rgba(20, 58, 78, 0.55);
+  background: #ffffff;
+  border: 1px solid #e3eef3;
+  border-radius: 6px;
+  box-shadow: 0 18px 44px -20px rgba(20, 58, 78, 0.4);
 }
 .np-label {
   display: flex;
@@ -1219,6 +1252,14 @@ body {
 .np-play:active {
   transform: scale(0.96);
 }
+.np-glyph {
+  display: inline-flex;
+  line-height: 1;
+}
+/* The play triangle is left-heavy; nudge right to sit optically centered. */
+.np-glyph-play {
+  margin-left: 2px;
+}
 .np-spinner {
   width: 18px;
   height: 18px;
@@ -1313,8 +1354,12 @@ body {
 
 .np-close {
   flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 38px;
   height: 38px;
+  padding: 0;
   border: 0;
   border-radius: 50%;
   background: #eef4f7;
@@ -1360,44 +1405,26 @@ body {
   gap: 26px;
   margin-top: 52px;
 }
+/* Flat ink card — soft rounded corners (friendlier than the member cards). */
 .unit-card {
   position: relative;
   display: flex;
   flex-direction: column;
   min-height: 340px;
-  background: color-mix(in srgb, var(--c) 18%, rgba(10, 30, 48, 0.55));
-  backdrop-filter: blur(14px) saturate(1.15);
-  -webkit-backdrop-filter: blur(14px) saturate(1.15);
-  border: 1px solid color-mix(in srgb, var(--c) 42%, transparent);
-  border-radius: 28px;
+  background: color-mix(in srgb, var(--deepest) 92%, #000);
+  border: 0;
+  border-radius: 20px;
   padding: 30px 30px 28px;
-  box-shadow: 0 30px 60px -34px rgba(4, 18, 32, 0.8);
+  box-shadow: 0 24px 56px -32px rgba(4, 18, 32, 0.7);
   overflow: hidden;
   isolation: isolate;
-  transition: transform 0.4s cubic-bezier(0.2, 0.85, 0.25, 1), box-shadow 0.4s ease,
-    border-color 0.4s ease;
+  transition: transform 0.4s cubic-bezier(0.2, 0.85, 0.25, 1);
 }
 .unit-card:hover {
-  transform: translateY(-10px);
-  border-color: color-mix(in srgb, var(--c) 70%, transparent);
-  box-shadow: 0 44px 80px -34px color-mix(in srgb, var(--c) 60%, rgba(4, 18, 32, 0.85));
+  transform: translateY(-6px);
 }
-/* Color glow that intensifies on hover. */
-.unit-glow {
-  position: absolute;
-  top: -30%;
-  right: -20%;
-  width: 70%;
-  height: 70%;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 55%, transparent), transparent);
-  opacity: 0.5;
-  transition: opacity 0.4s ease;
-}
-.unit-card:hover .unit-glow {
-  opacity: 0.85;
-}
+/* Glow removed (flat direction). */
+.unit-glow { display: none; }
 /* Faint lead-member emblem watermark. */
 .unit-watermark {
   position: absolute;
@@ -1511,7 +1538,7 @@ body {
 .subunits {
   max-width: none;
   background: color-mix(in srgb, var(--deep) 22%, transparent);
-  border-radius: 36px;
+  border-radius: 6px;
 }
 .subunits .h2,
 .subunits .lead,
@@ -1853,12 +1880,6 @@ body {
     transform: rotate(3deg);
   }
   .m-sign { transition: none; }
-  .roster-item:hover,
-  .roster-item:focus-visible,
-  .roster-item:hover .roster-img,
-  .roster-item:focus-visible .roster-img {
-    transform: none;
-  }
   .disc-eq i,
   .np-eq i {
     animation: none;
@@ -1940,7 +1961,7 @@ html[lang='ja'] .foot-sub {
   font-family: 'Noto Sans JP', 'Fredoka', sans-serif;
 }
 
-/* --- Language switcher: fixed frosted pill, top-right --------------------- */
+/* --- Language switcher: fixed solid pill, top-right ----------------------- */
 .lang-switch {
   position: fixed;
   top: 18px;
@@ -1950,11 +1971,9 @@ html[lang='ja'] .foot-sub {
   gap: 2px;
   padding: 4px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(10px) saturate(1.2);
-  -webkit-backdrop-filter: blur(10px) saturate(1.2);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 6px 20px rgba(20, 58, 78, 0.16);
+  background: #ffffff;
+  border: 1px solid #dce8ee;
+  box-shadow: 0 6px 18px rgba(20, 58, 78, 0.14);
 }
 .lang-btn {
   appearance: none;

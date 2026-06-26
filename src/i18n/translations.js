@@ -30,9 +30,7 @@ export const translations = {
     'about.h2': 'Nine girls, one shining sea.',
     'about.lead':
       "Aqours is the school idol group of Uranohoshi Girls' High School in Uchiura, Numazu, on Japan's sun-soaked Shizuoka coast. Inspired by the legendary μ's and refusing to watch their school close, nine friends chase a single radiant dream — to shine, here and now, with everything they've got.",
-    'about.stat.members': 'Members',
-    'about.stat.subunits': 'Sub-units',
-    'about.stat.debut': 'Debut Year',
+    'about.foot': 'Nine members, three sub-units, since 2015.',
 
     // --- members header ---
     'members.eyebrow': 'Meet Aqours',
@@ -113,9 +111,7 @@ export const translations = {
     'about.h2': '9人の少女、ひとつの輝く海。',
     'about.lead':
       'Aqours（アクア）は、静岡県沼津市の内浦にある浦の星女学院のスクールアイドルグループです。伝説のμ’sに憧れ、閉校の危機に立ち向かいながら、9人の仲間がただひとつの輝く夢を追いかけます — 今ここで、持てるすべてを懸けて輝くために。',
-    'about.stat.members': 'メンバー',
-    'about.stat.subunits': 'サブユニット',
-    'about.stat.debut': 'デビュー年',
+    'about.foot': 'メンバー9人、サブユニット3組、2015年から。',
 
     // --- members header ---
     'members.eyebrow': 'Aqoursに会おう',
