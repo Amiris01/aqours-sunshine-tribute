@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#6fc5f4" />
+    <!--
+      Content-Security-Policy: defense-in-depth for a static, no-backend site.
+      - 'unsafe-inline' on style-src is required by React inline style={{…}} props
+        and the Google Fonts stylesheet.
+      - Spotify: the IFrame API script (open.spotify.com), the embed iframe
+        (open.spotify.com), and album-cover images (*.spotifycdn.com).
+      - Google Fonts: CSS from fonts.googleapis.com, font files from fonts.gstatic.com.
+      No 'unsafe-eval' — the app and its deps don't need it.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+        script-src 'self' https://open.spotify.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        font-src 'self' https://fonts.gstatic.com;
+        img-src 'self' data: https://*.spotifycdn.com https://i.scdn.co;
+        connect-src 'self' https://open.spotify.com;
+        frame-src https://open.spotify.com;
+        base-uri 'self';
+        form-action 'none';
+        object-src 'none';
+        frame-ancestors 'self'"
+    />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>Aqours — Love Live! Sunshine!! Fan Tribute</title>
+    <meta
+      name="description"
+      content="A fan-made tribute celebrating Aqours, the nine-member school idol group from Love Live! Sunshine!!"
+    />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Aqours — Love Live! Sunshine!! Fan Tribute" />
+    <meta
+      property="og:description"
+      content="A fan-made tribute celebrating Aqours, the nine-member school idol group from Love Live! Sunshine!! — nine hearts, nine colors, one shining sea."
+    />
+    <!-- Replace the og:image / og:url origin with your deployed domain so
+         scrapers fetch an absolute URL. -->
+    <meta property="og:image" content="https://amiris01.github.io/aqours-sunshine-tribute/assets/logo/aqours-logo.png" />
+    <meta property="og:image:alt" content="Aqours logo" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="ja_JP" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Aqours — Love Live! Sunshine!! Fan Tribute" />
+    <meta
+      name="twitter:description"
+      content="A fan-made tribute celebrating Aqours, the nine-member school idol group from Love Live! Sunshine!!"
+    />
+    <meta name="twitter:image" content="https://amiris01.github.io/aqours-sunshine-tribute/assets/logo/aqours-logo.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

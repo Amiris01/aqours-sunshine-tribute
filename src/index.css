@@ -1,0 +1,2003 @@
+/* ==========================================================================
+   Aqours — Love Live! Sunshine!! Fan Tribute
+   Styles ported from the design handoff prototype (high-fidelity).
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+
+.page {
+  font-family: 'Nunito', 'Noto Sans JP', system-ui, sans-serif;
+  color: #143a4e;
+  background: linear-gradient(180deg,
+    var(--surface) 0%,
+    var(--shallow) 22%,
+    var(--mid) 55%,
+    var(--deep) 82%,
+    var(--deepest) 100%);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* --- Depth palette: sky surface -> deep water (scroll descent) ---------- */
+:root {
+  --surface: #eaf8ff;   /* hero / top */
+  --shallow: #d8f1fe;
+  --mid:     #9fd6f2;
+  --deep:    #2f6f93;
+  --deepest: #143a4e;   /* footer ink-blue */
+  --feather: rgba(110, 180, 230, 0.5); /* earned blue-feather motif */
+}
+
+/* --- Editorial pacing: tight -> wide -> full-bleed --------------------- */
+.pace-tight { max-width: 760px;  margin-inline: auto; padding-block: 88px;  padding-inline: 24px; }
+.pace-wide  { max-width: 1200px; margin-inline: auto; padding-block: 128px; padding-inline: 24px; }
+.pace-bleed { max-width: none;   width: 100%;         padding-block: 160px; padding-inline: 0; }
+
+@media (max-width: 768px) {
+  .pace-tight, .pace-wide { padding-block: 64px; padding-inline: 18px; }
+  .pace-bleed { padding-block: 88px; }
+}
+
+/* --- Scroll progress bar ------------------------------------------------- */
+.progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 5px;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, #9fd6f2, #6fc5f4, #2f6f93);
+  z-index: 60;
+}
+
+/* --- Hero WebGL canvas host (Three.js water surface) --------------------
+   The host always keeps its full size (never display:none) so the renderer
+   can measure clientWidth/Height at init. The CSS fallback sits underneath
+   and is hidden only once GL is confirmed live (data-gl="on"). */
+.hero-gl-host { position: absolute; inset: 0; z-index: 1; }
+.hero-gl { display: block; width: 100%; height: 100%; }
+
+/* Fallback sky stack: shown by default, hidden when WebGL is running. */
+.hero-fallback { position: absolute; inset: 0; z-index: 0; }
+.hero-gl-host[data-gl="on"] ~ .hero-fallback { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-fallback { display: block !important; }
+}
+
+/* Asymmetric wordmark: logo offset right, bleeding off the edge. */
+.hero-content.asym {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  padding-inline: clamp(20px, 6vw, 80px);
+}
+.hero-content.asym .hero-logo-img {
+  width: min(78vw, 720px);
+  margin-right: clamp(-60px, -6vw, 0px); /* bleed off the right edge */
+}
+@media (max-width: 768px) {
+  .hero-content.asym { align-items: center; text-align: center; }
+  .hero-content.asym .hero-logo-img { width: 82vw; margin-right: 0; }
+}
+/* Short / landscape phones: let the hero shrink to the viewport instead of
+   forcing 600px (which would clip content), and lift the scroll cue clear of
+   the waves. */
+@media (max-height: 560px) {
+  .hero { min-height: 440px; }
+  .scroll-cue { bottom: 70px; }
+}
+
+/* --- Hero ---------------------------------------------------------------- */
+.hero {
+  position: relative;
+  height: 100vh;
+  height: 100svh; /* exclude mobile browser chrome so the hero isn't clipped */
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+}
+.sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #6fc5f4 0%, #a4ddf9 40%, #d8f1fe 72%, #eaf8ff 100%);
+  z-index: 0;
+}
+.sun {
+  position: absolute;
+  top: 11%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  will-change: transform;
+}
+.sun-core {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 42%, #fff7d6, #ffd24d 58%, #ffb733);
+  box-shadow: 0 0 90px 26px rgba(255, 206, 80, 0.5);
+  animation: bob 6s ease-in-out infinite;
+}
+.cloud {
+  position: absolute;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0));
+  border-radius: 50%;
+  z-index: 1;
+  filter: blur(2px);
+}
+.c1 {
+  width: 260px;
+  height: 120px;
+  top: 21%;
+  left: 7%;
+  animation: drift 22s ease-in-out infinite;
+}
+.c2 {
+  width: 200px;
+  height: 92px;
+  top: 33%;
+  right: 11%;
+  animation: drift 18s ease-in-out infinite reverse;
+}
+.c3 {
+  width: 150px;
+  height: 78px;
+  top: 14%;
+  right: 26%;
+  animation: drift 27s ease-in-out infinite;
+}
+.hero-content {
+  position: relative;
+  z-index: 3;
+  padding: 0 20px;
+  will-change: transform, opacity;
+}
+/* Staggered entrance: each child fades up in sequence on load. Animating the
+   children (not .hero-content) keeps the scroll parallax on the parent free. */
+.hero-content > * {
+  animation: hero-rise 0.9s cubic-bezier(0.2, 0.85, 0.25, 1) both;
+}
+.hero-eyebrow {
+  animation-delay: 0.1s;
+}
+.hero-logo-img {
+  animation-delay: 0.24s;
+}
+.tagline {
+  animation-delay: 0.42s;
+}
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(10px, 1.6vw, 18px);
+  margin-bottom: 20px;
+}
+/* Official series wordmark (LoveLive! Sunshine!!), swaps EN/JP with language. */
+.hero-series-logo {
+  display: block;
+  height: clamp(34px, 5vw, 60px);
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(225, 35, 120, 0.22));
+}
+/* Small "Fan Tribute" tag sitting beside the series logo, with a hairline. */
+.hero-eyebrow-tag {
+  font-family: 'Fredoka';
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  font-size: clamp(10px, 1.3vw, 13px);
+  color: #0a6fa0;
+  padding-left: clamp(10px, 1.6vw, 18px);
+  border-left: 1.5px solid rgba(10, 111, 160, 0.35);
+  white-space: nowrap;
+}
+.wordmark {
+  display: inline-block;
+  font-family: 'Fredoka';
+  font-weight: 600;
+  font-size: clamp(74px, 17vw, 232px);
+  line-height: 0.92;
+  letter-spacing: -0.015em;
+  background: linear-gradient(100deg, #ff7a59, #ffcf3f, #36b6f0, #9b72b0, #ff7a59);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 10px 24px rgba(20, 58, 78, 0.18));
+  animation: sheen 7s linear infinite;
+}
+.tagline {
+  font-family: 'Fredoka';
+  font-weight: 500;
+  font-size: clamp(18px, 2.6vw, 30px);
+  /* White over the blue sea, with a soft shadow + halo so it stays legible
+     across the variable hero background (sea, sky, sun glow). */
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(8, 46, 66, 0.55), 0 2px 14px rgba(8, 46, 66, 0.45);
+  margin-top: 8px;
+}
+.scroll-cue {
+  position: absolute;
+  bottom: 118px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  font-family: 'Fredoka';
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  /* White over the sea, with a soft shadow so it stays legible. */
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(8, 46, 66, 0.55), 0 2px 12px rgba(8, 46, 66, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.scroll-cue .arrow {
+  font-size: 22px;
+  animation: bounce 1.6s ease-in-out infinite;
+}
+
+/* --- Waves --------------------------------------------------------------- */
+.waves {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 190px;
+  z-index: 2;
+  pointer-events: none;
+}
+.wave {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 200%;
+  height: 100%;
+}
+.wave svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.w1 {
+  opacity: 0.5;
+  animation: waveX 19s linear infinite;
+}
+.w2 {
+  opacity: 0.65;
+  animation: waveX 13s linear infinite reverse;
+}
+.w3 {
+  animation: waveX 9s linear infinite;
+}
+
+/* --- Generic section ----------------------------------------------------- */
+.section {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 128px 26px;
+  position: relative;
+}
+.eyebrow {
+  font-family: 'Fredoka';
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #00a6e6;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+.h2 {
+  font-family: 'Fredoka';
+  font-weight: 600;
+  font-size: clamp(34px, 5.4vw, 66px);
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  max-width: 16ch;
+  margin: 0;
+}
+.lead {
+  font-size: clamp(17px, 2vw, 22px);
+  line-height: 1.65;
+  color: #3a6173;
+  max-width: 60ch;
+  margin-top: 22px;
+}
+
+/* --- About / stats ------------------------------------------------------- */
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(34px, 5vw, 60px);
+  margin-top: 54px;
+}
+.stat-num {
+  font-family: 'Fredoka';
+  font-weight: 600;
+  font-size: clamp(44px, 6vw, 78px);
+  line-height: 1;
+  background: linear-gradient(120deg, #ff7a59, #ffcf3f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.stat-num.blue {
+  background: linear-gradient(120deg, #36b6f0, #0077b6);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.stat-label {
+  font-size: 15px;
+  color: #5a7a8a;
+  margin-top: 8px;
+  font-weight: 700;
+}
+
+/* --- Members header ------------------------------------------------------ */
+.members-head {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 112px 26px 16px;
+  text-align: center;
+}
+.members-head .lead {
+  margin-left: auto;
+  margin-right: auto;
+}
+.members-head .h2 {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* --- Roster carousel: nine portrait cards, swipe/arrow, click to jump --- */
+.roster-carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 1240px;
+  margin: 52px auto 12px;
+  padding-inline: 16px;
+}
+.roster-track {
+  display: flex;
+  gap: 22px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 8px 22px; /* room for card lift + shadow */
+  scrollbar-width: none; /* Firefox */
+  flex: 1;
+  min-width: 0;
+}
+.roster-track::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+/* Custom prev/next arrows. */
+.roster-arrow {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  cursor: pointer;
+  border-radius: 50%;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 30px;
+  line-height: 1;
+  color: #143a4e;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 28px -14px rgba(20, 58, 78, 0.6);
+  transition: transform 0.25s ease, background 0.25s ease;
+  z-index: 3;
+}
+.roster-arrow:hover,
+.roster-arrow:focus-visible {
+  background: #ffffff;
+  transform: scale(1.1);
+  outline: none;
+}
+.roster-arrow:active {
+  transform: scale(0.96);
+}
+.roster-item {
+  position: relative;
+  flex: 0 0 clamp(190px, 22vw, 240px); /* fixed card width in the track */
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  border-radius: 26px;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--c) 78%, #ffffff) 0%,
+    color-mix(in srgb, var(--c) 92%, #0a2030) 100%
+  );
+  box-shadow: 0 24px 46px -26px color-mix(in srgb, var(--c) 80%, rgba(20, 58, 78, 0.7));
+  transition: transform 0.4s cubic-bezier(0.2, 0.85, 0.25, 1), box-shadow 0.4s ease;
+}
+.roster-item:hover,
+.roster-item:focus-visible {
+  transform: translateY(-12px);
+  box-shadow: 0 40px 70px -26px color-mix(in srgb, var(--c) 85%, rgba(20, 58, 78, 0.7));
+  outline: none;
+}
+.roster-item:focus-visible {
+  box-shadow: 0 40px 70px -26px color-mix(in srgb, var(--c) 85%, rgba(20, 58, 78, 0.7)),
+    0 0 0 3px color-mix(in srgb, var(--c) 60%, #ffffff);
+}
+/* Portrait "stage": the figure on a luminous radial wash. */
+.roster-stage {
+  position: relative;
+  z-index: 1;
+  display: block;
+  padding: 18px 10px 0;
+  background: radial-gradient(
+    120% 80% at 50% 18%,
+    color-mix(in srgb, #ffffff 42%, transparent),
+    transparent 70%
+  );
+}
+.roster-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: contain;
+  object-position: bottom center;
+  filter: drop-shadow(0 10px 14px rgba(8, 30, 46, 0.35));
+  transition: transform 0.45s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+.roster-item:hover .roster-img,
+.roster-item:focus-visible .roster-img {
+  transform: scale(1.07) translateY(-4px);
+}
+/* Name footer with frosted bar + emblem. */
+.roster-foot {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 14px 12px 16px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--c) 96%, #06141f) 38%
+  );
+}
+.roster-emblem {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  flex: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+.roster-name {
+  font-family: 'Fredoka';
+  font-weight: 700;
+  font-size: clamp(16px, 1.6vw, 19px);
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(6, 20, 34, 0.5);
+}
+
+/* Phone: smaller cards, tighter arrows; swipe is the primary gesture. */
+@media (max-width: 480px) {
+  .roster-carousel {
+    gap: 4px;
+    padding-inline: 8px;
+  }
+  .roster-track {
+    gap: 14px;
+    padding: 10px 6px 18px;
+  }
+  .roster-item {
+    flex-basis: 64vw; /* one prominent card, next peeks */
+    max-width: 260px;
+  }
+  .roster-arrow {
+    width: 40px;
+    height: 40px;
+    font-size: 26px;
+  }
+}
+
+/* --- Member section: full-width bands, alternating L/R ------------------ */
+.msec {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(64px, 8vw, 108px) 26px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--c) 12%, #fffdf8),
+    color-mix(in srgb, var(--c) 4%, #fffdf8)
+  );
+}
+
+.msec .mwrap { position: relative; z-index: 1; }
+.mwrap {
+  display: flex;
+  gap: clamp(30px, 4.5vw, 60px);
+  align-items: flex-start;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.mwrap.flip {
+  flex-direction: row-reverse;
+}
+
+/* ===== Full-bleed character-banner bands ================================= */
+/* A band with a banner becomes a cinematic moment: the full artwork is the
+   background, a color-tinted scrim keeps the info legible, and the profile
+   sits in a frosted card on one side (flips with .flip). */
+.msec.has-banner {
+  padding: 0;
+  min-height: clamp(560px, 62vw, 760px);
+  display: flex;
+  align-items: stretch;
+  isolation: isolate;
+}
+.msec-banner {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  /* Card on the LEFT by default → bias the artwork RIGHT so the character
+     sits in the open side. .card-right mirrors both card and framing. */
+  background-position: 78% center;
+  transform: scale(1.06);
+  transition: transform 1.1s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+.msec.card-right .msec-banner {
+  background-position: 22% center;
+}
+.msec.has-banner:hover .msec-banner {
+  transform: scale(1.12);
+}
+/* Cinematic vignette + faint top/bottom letterbox for depth. */
+.msec.has-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 40%, transparent 52%, rgba(6, 20, 34, 0.45) 100%),
+    linear-gradient(180deg, rgba(6, 20, 34, 0.32) 0%, transparent 18%, transparent 78%, rgba(6, 20, 34, 0.4) 100%);
+}
+/* A color bloom on the card side, giving the band a luminous signature. */
+.msec-glow {
+  position: absolute;
+  z-index: 1;
+  bottom: -10%;
+  left: -8%;
+  width: 56%;
+  height: 90%;
+  pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 60%, transparent), transparent 72%);
+  opacity: 0.55;
+  mix-blend-mode: screen;
+}
+.msec.card-right .msec-glow {
+  left: auto;
+  right: -8%;
+}
+/* Color-tinted scrim: a focused wash under the card edge only, fading to fully
+   clear well before center so the character stays visible. Default = info on
+   the LEFT; .flip mirrors it to the right. */
+.msec-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--deepest) 80%, transparent) 0%,
+      color-mix(in srgb, var(--deepest) 40%, transparent) 26%,
+      transparent 48%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 60%,
+      color-mix(in srgb, var(--c) 26%, transparent) 100%
+    );
+}
+.msec.card-right .msec-scrim {
+  transform: scaleX(-1);
+}
+/* Info column over the banner: a slimmer frosted card hugged hard to the
+   lower outer edge, so the character's face (upper art) stays clear. */
+.msec.has-banner .mwrap {
+  width: 100%;
+  max-width: none;
+  padding: clamp(36px, 4vw, 60px) clamp(14px, 2vw, 28px);
+  align-items: flex-end; /* drop the card to the bottom */
+  z-index: 2;
+}
+.msec.has-banner.card-right .mwrap {
+  justify-content: flex-end;
+}
+.msec.has-banner .minfo {
+  position: relative;
+  flex: 0 1 min(480px, 90%);
+  background: color-mix(in srgb, var(--deepest) 52%, transparent);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid color-mix(in srgb, #ffffff 24%, transparent);
+  border-radius: 28px;
+  padding: clamp(28px, 2.8vw, 44px);
+  box-shadow:
+    0 40px 90px -34px rgba(6, 20, 34, 0.85),
+    inset 0 1px 0 color-mix(in srgb, #ffffff 30%, transparent),
+    0 0 60px -20px color-mix(in srgb, var(--c) 55%, transparent);
+  transition: transform 0.5s cubic-bezier(0.2, 0.85, 0.25, 1),
+    box-shadow 0.5s ease;
+}
+.msec.has-banner:hover .minfo {
+  transform: translateY(-6px);
+  box-shadow:
+    0 54px 110px -34px rgba(6, 20, 34, 0.9),
+    inset 0 1px 0 color-mix(in srgb, #ffffff 36%, transparent),
+    0 0 80px -16px color-mix(in srgb, var(--c) 70%, transparent);
+}
+/* Luminous top accent line on the card. */
+.msec.has-banner .minfo::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: clamp(28px, 2.8vw, 44px);
+  width: 54px;
+  height: 4px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--c), color-mix(in srgb, var(--c) 30%, #ffffff));
+  box-shadow: 0 0 16px color-mix(in srgb, var(--c) 80%, transparent);
+}
+/* Character signature at the bottom of the card — like a real autograph.
+   It sits on the OPPOSITE side from the card edge: left card -> sign right,
+   right card -> sign left (toward the character / open art). */
+.m-sign-wrap {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid color-mix(in srgb, #ffffff 16%, transparent);
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+.msec.card-left .m-sign-wrap { justify-content: flex-end; }
+.msec.card-right .m-sign-wrap { justify-content: flex-start; }
+.m-sign {
+  height: clamp(52px, 6vw, 76px);
+  width: auto;
+  max-width: 72%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 10px color-mix(in srgb, var(--c) 50%, transparent));
+  transition: transform 0.4s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+/* Left card → sign on the right, tilt anchored to its right edge. */
+.msec.card-left .m-sign {
+  object-position: right bottom;
+  transform: rotate(-4deg);
+  transform-origin: right bottom;
+}
+/* Right card → sign on the left, tilt anchored to its left edge. */
+.msec.card-right .m-sign {
+  object-position: left bottom;
+  transform: rotate(3deg);
+  transform-origin: left bottom;
+}
+.msec.card-left.has-banner:hover .m-sign {
+  transform: rotate(-4deg) scale(1.04);
+}
+.msec.card-right.has-banner:hover .m-sign {
+  transform: rotate(3deg) scale(1.04);
+}
+/* Light typography on the frosted card. */
+.msec.has-banner .m-name {
+  color: #ffffff;
+  font-size: clamp(34px, 4.8vw, 60px);
+  text-shadow: 0 4px 24px color-mix(in srgb, var(--c) 55%, transparent);
+}
+.msec.has-banner .m-jp {
+  color: color-mix(in srgb, var(--c) 36%, #e7f3fb);
+  font-size: clamp(16px, 2vw, 22px);
+}
+.msec.has-banner .m-blurb { color: #e8f2f8; max-width: none; }
+.msec.has-banner .pgrid {
+  border-top-color: color-mix(in srgb, #ffffff 26%, transparent);
+}
+.msec.has-banner .plabel {
+  color: color-mix(in srgb, var(--c) 44%, #cfe2ee);
+}
+.msec.has-banner .pval { color: #f3f9fc; }
+.msec.has-banner .chip.unit {
+  background: color-mix(in srgb, #ffffff 16%, transparent);
+  color: #ffffff;
+  border-color: color-mix(in srgb, #ffffff 34%, transparent);
+}
+.msec.has-banner .chip.oshi {
+  background: color-mix(in srgb, var(--c) 40%, transparent);
+  color: #ffffff;
+  border-color: color-mix(in srgb, var(--c) 60%, transparent);
+}
+/* Brighten the oversized numeral so it reads on the dark scrim. */
+.msec.has-banner::before {
+  color: #ffffff;
+  opacity: 0.16;
+  z-index: 1;
+}
+.minfo {
+  flex: 1;
+  min-width: 0;
+}
+
+/* --- Member info --------------------------------------------------------- */
+.accent {
+  width: 60px;
+  height: 7px;
+  border-radius: 99px;
+  background: var(--c);
+  margin-bottom: 18px;
+}
+.m-name {
+  font-family: 'Fredoka';
+  font-weight: 600;
+  font-size: clamp(30px, 4.4vw, 54px);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.m-jp {
+  font-size: clamp(15px, 1.8vw, 19px);
+  color: #6a8a9a;
+  margin-top: 8px;
+  font-weight: 700;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+.chip {
+  font-family: 'Fredoka';
+  font-weight: 500;
+  font-size: 13px;
+  padding: 8px 15px;
+  border-radius: 99px;
+  display: inline-flex;
+  align-items: center;
+}
+.chip.unit {
+  background: #fff;
+  border: 1.5px solid color-mix(in srgb, var(--c) 45%, #fff);
+  color: #2a5061;
+}
+.chip.oshi {
+  background: color-mix(in srgb, var(--c) 16%, #fff);
+  color: color-mix(in srgb, var(--c) 72%, #2a4a40);
+  border: 1.5px solid color-mix(in srgb, var(--c) 34%, #fff);
+}
+.swatch {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--c);
+  margin-right: 8px;
+}
+.m-blurb {
+  font-size: clamp(16px, 1.9vw, 21px);
+  line-height: 1.6;
+  color: #3a6173;
+  max-width: 52ch;
+  margin-top: 20px;
+}
+.pgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 30px;
+  margin-top: 26px;
+  border-top: 1.5px solid color-mix(in srgb, var(--c) 24%, #e7eef2);
+  padding-top: 24px;
+}
+.pcell {
+  min-width: 0;
+}
+.plabel {
+  font-family: 'Fredoka';
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--c) 68%, #3a6173);
+  margin-bottom: 4px;
+}
+.pval {
+  font-size: 17px;
+  font-weight: 700;
+  color: #22414e;
+  line-height: 1.3;
+}
+
+/* --- Reveal animation ---------------------------------------------------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(46px) scale(0.985);
+  transition: opacity 0.9s ease, transform 1s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* --- Discography (album-art tiles) -------------------------------------- */
+.disc {
+  display: grid;
+  /* 6 albums → two even rows of 3, centered. Fixed tile width + centered
+     tracks keep the rows balanced (no orphan tile). */
+  grid-template-columns: repeat(3, minmax(0, 250px));
+  justify-content: center;
+  gap: 26px;
+  max-width: 860px;
+  margin: 48px auto 0;
+}
+@media (max-width: 768px) {
+  .disc { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 520px; }
+}
+@media (max-width: 480px) {
+  .disc { grid-template-columns: 1fr; max-width: 320px; }
+}
+.disc-tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: 22px;
+  font: inherit;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+.disc-art {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #dceaf2;
+  box-shadow: 0 22px 44px -28px rgba(20, 58, 78, 0.7);
+  transition: transform 0.4s cubic-bezier(0.2, 0.85, 0.25, 1),
+    box-shadow 0.4s ease;
+}
+.disc-art img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.55s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+.disc-art-fallback {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #a4ddf9, #36b6f0);
+}
+/* color tint + a permanent dark gradient at the bottom for text legibility */
+.disc-tint {
+  position: absolute;
+  inset: 0;
+  background: var(--tint),
+    linear-gradient(to top, rgba(8, 38, 54, 0.82) 2%, rgba(8, 38, 54, 0) 46%);
+  pointer-events: none;
+}
+.disc-meta {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 2;
+}
+.disc-year {
+  font-family: 'Fredoka';
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.82);
+}
+.disc-title {
+  font-family: 'Fredoka';
+  font-weight: 600;
+  font-size: 19px;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(8, 38, 54, 0.5);
+}
+/* play button on the art */
+.disc-play {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #1db954; /* Spotify green */
+  color: #fff;
+  font-size: 16px;
+  padding-left: 2px; /* optical centering of the ▶ glyph */
+  z-index: 3;
+  box-shadow: 0 8px 20px -6px rgba(8, 38, 54, 0.6);
+  opacity: 0;
+  transform: translateY(8px) scale(0.85);
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+.disc-tile:hover .disc-play,
+.disc-tile:focus-visible .disc-play,
+.disc-tile.playing .disc-play {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.disc-tile:hover .disc-art {
+  transform: translateY(-6px);
+  box-shadow: 0 34px 60px -30px rgba(20, 58, 78, 0.75);
+}
+.disc-tile:hover .disc-art img {
+  transform: scale(1.07);
+}
+.disc-tile.playing .disc-art {
+  outline: 3px solid #1db954;
+  outline-offset: 3px;
+}
+.disc-tile:focus-visible {
+  outline: 3px solid #36b6f0;
+  outline-offset: 4px;
+}
+/* equalizer (tile play button + now-playing bar) */
+.disc-eq,
+.np-eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2.5px;
+  height: 16px;
+}
+.disc-eq i,
+.np-eq i {
+  width: 3px;
+  background: currentColor;
+  border-radius: 2px;
+  animation: eq 0.9s ease-in-out infinite;
+}
+.disc-eq i:nth-child(1),
+.np-eq i:nth-child(1) {
+  height: 40%;
+  animation-delay: -0.2s;
+}
+.disc-eq i:nth-child(2),
+.np-eq i:nth-child(2) {
+  height: 100%;
+  animation-delay: -0.5s;
+}
+.disc-eq i:nth-child(3),
+.np-eq i:nth-child(3) {
+  height: 65%;
+  animation-delay: -0.1s;
+}
+@keyframes eq {
+  0%,
+  100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+/* --- Discography section: a deep "record shelf" band, matching the framed
+   treatment of the Sub-units section so it reads as a deliberate zone rather
+   than tiles floating on the page background. ----------------------------- */
+.disc-section {
+  max-width: none;
+  position: relative;
+  overflow: hidden;
+  margin: 40px auto 0;
+  padding-block: clamp(72px, 9vw, 128px);
+  background: color-mix(in srgb, var(--deepest) 88%, transparent);
+  border-radius: 36px;
+  isolation: isolate;
+}
+/* Warm + cool light wash across the band for depth. */
+.disc-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(120% 80% at 12% -10%, rgba(255, 160, 90, 0.18), transparent 55%),
+    radial-gradient(120% 90% at 92% 110%, rgba(54, 182, 240, 0.22), transparent 55%);
+  pointer-events: none;
+}
+.disc-section .h2,
+.disc-section .eyebrow {
+  color: #f3fbff;
+}
+.disc-head {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.disc-head .h2 {
+  margin-inline: auto;
+}
+.disc-section .disc {
+  position: relative;
+  z-index: 1;
+}
+/* Faint concentric "vinyl" motif behind the grid — sound made visible. */
+.disc-vinyl {
+  position: absolute;
+  top: clamp(-90px, -6vw, -40px);
+  right: clamp(-120px, -8vw, -60px);
+  width: clamp(280px, 36vw, 520px);
+  height: clamp(280px, 36vw, 520px);
+  border-radius: 50%;
+  z-index: 0;
+  opacity: 0.85;
+  pointer-events: none;
+  background:
+    repeating-radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.16) 0,
+      rgba(255, 255, 255, 0.16) 1.5px,
+      transparent 1.5px,
+      transparent 10px
+    ),
+    radial-gradient(circle at center, rgba(255, 207, 63, 0.3), transparent 66%);
+  -webkit-mask-image: radial-gradient(circle at center, #000 74%, transparent 90%);
+  mask-image: radial-gradient(circle at center, #000 74%, transparent 90%);
+}
+@media (max-width: 768px) {
+  .disc-section {
+    border-radius: 26px;
+    margin-inline: 12px;
+  }
+}
+
+/* --- Now-playing dock --------------------------------------------------- */
+.np-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  transform: translateY(110%);
+  transition: transform 0.45s cubic-bezier(0.2, 0.85, 0.25, 1);
+  pointer-events: none;
+}
+.np-bar.open {
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.np-inner {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  max-width: 1120px;
+  margin: 0 auto 14px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px -20px rgba(20, 58, 78, 0.55);
+}
+.np-label {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: 270px;
+}
+.np-cover {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex: 0 0 auto;
+  box-shadow: 0 6px 14px -6px rgba(20, 58, 78, 0.6);
+}
+.np-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.np-now {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Fredoka';
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #1db954;
+}
+.np-now .np-eq {
+  height: 11px;
+}
+.np-title {
+  font-family: 'Fredoka';
+  font-weight: 600;
+  font-size: 15px;
+  color: #143a4e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* transport controls: prev / play / next */
+.np-controls {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.np-skip {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #3a6173;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+.np-skip:hover:not(:disabled) {
+  background: #eef4f7;
+  transform: scale(1.08);
+}
+.np-skip:disabled {
+  color: #b9ccd6;
+  cursor: default;
+}
+.np-play {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: #1db954;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 18px -8px rgba(29, 185, 84, 0.8);
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+.np-play:hover {
+  transform: scale(1.07);
+  filter: brightness(1.05);
+}
+.np-play:active {
+  transform: scale(0.96);
+}
+.np-spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  animation: np-spin 0.7s linear infinite;
+}
+@keyframes np-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* custom progress scrubber */
+.np-progress {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.np-time {
+  font-family: 'Fredoka';
+  font-weight: 500;
+  font-size: 12px;
+  color: #5a7a8a;
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+.np-track {
+  position: relative;
+  flex: 1;
+  height: 6px;
+  border-radius: 99px;
+  background: #d8e6ee;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+.np-track:hover,
+.np-track.dragging {
+  height: 8px;
+}
+.np-fill {
+  position: relative;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #1db954, #36b6f0);
+  min-width: 0;
+}
+.np-knob {
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(20, 58, 78, 0.5);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.np-track:hover .np-knob,
+.np-track.dragging .np-knob {
+  opacity: 1;
+}
+
+/* Hidden Spotify iframe host. The iframe MUST keep real dimensions and stay
+   visible (opacity > 0, non-zero size, on-screen) or Spotify won't initialize
+   or stream audio. So we give it a normal width, let it render at full height,
+   and simply clip it to 0 visible height via the wrapper — it's still
+   "visible" to the browser/Spotify, just not shown to the user. */
+.np-hidden-host {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.np-hidden-host iframe {
+  display: block;
+  width: 100%;
+  height: 80px;
+}
+
+.np-eq.paused i {
+  animation-play-state: paused;
+}
+
+.np-close {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: #eef4f7;
+  color: #3a6173;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.np-close:hover {
+  background: #dde9ef;
+  transform: scale(1.08);
+}
+@media (max-width: 640px) {
+  .np-label {
+    display: none;
+  }
+  .np-inner {
+    gap: 10px;
+    padding: 10px 12px;
+  }
+  .np-progress {
+    gap: 8px;
+  }
+  /* Thumb-reachable tap targets (≥44px) on phones. */
+  .np-play,
+  .np-skip,
+  .np-close {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+@media (max-width: 480px) {
+  .np-time {
+    display: none;
+  }
+}
+
+/* --- Sub-units (frosted glass on deep water) ---------------------------- */
+.unit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 26px;
+  margin-top: 52px;
+}
+.unit-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 340px;
+  background: color-mix(in srgb, var(--c) 18%, rgba(10, 30, 48, 0.55));
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  border: 1px solid color-mix(in srgb, var(--c) 42%, transparent);
+  border-radius: 28px;
+  padding: 30px 30px 28px;
+  box-shadow: 0 30px 60px -34px rgba(4, 18, 32, 0.8);
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.4s cubic-bezier(0.2, 0.85, 0.25, 1), box-shadow 0.4s ease,
+    border-color 0.4s ease;
+}
+.unit-card:hover {
+  transform: translateY(-10px);
+  border-color: color-mix(in srgb, var(--c) 70%, transparent);
+  box-shadow: 0 44px 80px -34px color-mix(in srgb, var(--c) 60%, rgba(4, 18, 32, 0.85));
+}
+/* Color glow that intensifies on hover. */
+.unit-glow {
+  position: absolute;
+  top: -30%;
+  right: -20%;
+  width: 70%;
+  height: 70%;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 55%, transparent), transparent);
+  opacity: 0.5;
+  transition: opacity 0.4s ease;
+}
+.unit-card:hover .unit-glow {
+  opacity: 0.85;
+}
+/* Faint lead-member emblem watermark. */
+.unit-watermark {
+  position: absolute;
+  right: -26px;
+  bottom: -26px;
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  z-index: 0;
+  opacity: 0.12;
+  pointer-events: none;
+  filter: brightness(0) invert(1);
+}
+.unit-head {
+  position: relative;
+  z-index: 1;
+}
+.unit-name {
+  font-family: 'Fredoka';
+  font-weight: 600;
+  font-size: clamp(26px, 3vw, 34px);
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: #ffffff;
+  text-shadow: 0 2px 18px color-mix(in srgb, var(--c) 60%, transparent);
+}
+/* Official unit wordmark logos: all sit on a uniform light chip so the three
+   different logos (incl. the dark Guilty Kiss) read consistently on the glass. */
+.unit-name.has-logo {
+  margin: 0;
+}
+.unit-logo-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: clamp(54px, 6vw, 66px);
+  padding: 0 18px;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 14px;
+  box-shadow: 0 10px 26px -12px rgba(4, 18, 32, 0.7);
+}
+.unit-logo {
+  display: block;
+  width: auto;
+  max-width: 200px;
+  max-height: clamp(30px, 3.4vw, 40px);
+  object-fit: contain;
+}
+.unit-tagline {
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: #d8ebf5;
+  margin: 12px 0 0;
+}
+/* Members as a row of color-ringed emblem avatars. */
+.unit-roster {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  padding-top: 24px;
+  display: flex;
+  gap: 18px;
+  border-top: 1px solid color-mix(in srgb, #ffffff 18%, transparent);
+}
+.unit-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  flex: 1;
+  min-width: 0;
+}
+.unit-avatar-ring {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--c) 22%, rgba(255, 255, 255, 0.08));
+  border: 2px solid var(--c);
+  transition: transform 0.35s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+.unit-avatar:hover .unit-avatar-ring {
+  transform: scale(1.12) translateY(-2px);
+}
+.unit-emblem {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  flex: none;
+}
+.unit-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--c);
+  flex: none;
+}
+.unit-member-name {
+  font-family: 'Fredoka';
+  font-weight: 600;
+  font-size: 14px;
+  color: #eef7fc;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* --- Footer -------------------------------------------------------------- */
+/* Sub-units: the deeper "together" band on the descent into water. */
+.subunits {
+  max-width: none;
+  background: color-mix(in srgb, var(--deep) 22%, transparent);
+  border-radius: 36px;
+}
+.subunits .h2,
+.subunits .lead,
+.subunits .eyebrow {
+  color: #f3fbff;
+}
+
+.foot {
+  position: relative;
+  margin-top: 50px;
+  padding: 150px 26px 90px;
+  text-align: center;
+  background: var(--deepest);
+  color: #dbeefb;
+  overflow: hidden;
+}
+/* Settling blue feather — the radiance Aqours earned, at journey's end. */
+.foot::before {
+  content: '';
+  position: absolute;
+  right: 6%;
+  top: 10%;
+  width: 120px;
+  height: 220px;
+  opacity: 0.18;
+  background: radial-gradient(closest-side, var(--feather), transparent);
+  transform: rotate(18deg);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .foot::before {
+    animation: featherDrift 9s ease-in-out infinite;
+  }
+}
+@keyframes featherDrift {
+  0%,
+  100% {
+    transform: translateY(0) rotate(18deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(12deg);
+  }
+}
+.foot-wave {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 90px;
+}
+.foot-wave svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.foot-mark {
+  font-family: 'Fredoka';
+  font-weight: 600;
+  font-size: clamp(44px, 9vw, 104px);
+  line-height: 1;
+  background: linear-gradient(100deg, #ff7a59, #ffcf3f, #36b6f0, #9b72b0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.foot-sub {
+  font-family: 'Fredoka';
+  font-size: clamp(17px, 2.3vw, 25px);
+  color: #bfe2f5;
+  margin-top: 14px;
+}
+.foot-note {
+  margin: 36px auto 0;
+  font-size: 13px;
+  color: #93bdd6;
+  max-width: 62ch;
+  line-height: 1.6;
+}
+
+/* --- Dot rail ------------------------------------------------------------ */
+.dots {
+  position: fixed;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 40;
+}
+.dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background: var(--c);
+  opacity: 0.45;
+  transition: all 0.3s ease;
+}
+.dot.on {
+  opacity: 1;
+  transform: scale(1.7);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 22%, transparent);
+}
+
+/* --- Placeholder slot ---------------------------------------------------- */
+.slot {
+  position: relative;
+  border-radius: 16px;
+  background: repeating-linear-gradient(
+    45deg,
+    #ffffff,
+    #ffffff 9px,
+    #eef4f7 9px,
+    #eef4f7 18px
+  );
+  border: 2px dashed color-mix(in srgb, var(--c, #9fb6c0) 50%, #cfdde4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6d8a97;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 12px;
+  line-height: 1.4;
+}
+.hero-logo {
+  width: min(300px, 72vw);
+  height: 116px;
+  margin: 0 auto 24px;
+}
+
+/* Real logo art used as the hero wordmark: size by width, keep aspect ratio. */
+.hero-logo-img {
+  display: block;
+  width: clamp(280px, 56vw, 680px);
+  height: auto;
+  object-fit: contain;
+  margin: 14px auto 8px;
+  filter: drop-shadow(0 10px 24px rgba(20, 58, 78, 0.18));
+}
+.emblem {
+  object-fit: contain;
+  /* Emblems sit left in their column to echo the dashed-slot placement. */
+  object-position: left center;
+}
+
+/* --- Keyframes ----------------------------------------------------------- */
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(42px);
+  }
+}
+@keyframes sheen {
+  to {
+    background-position: 220% center;
+  }
+}
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(9px);
+  }
+}
+@keyframes waveX {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Responsive ---------------------------------------------------------- */
+@media (max-width: 768px) {
+  .mwrap,
+  .mwrap.flip {
+    flex-direction: column;
+  }
+  .pgrid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .accent,
+  .m-blurb {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .chips {
+    justify-content: center;
+  }
+  .minfo {
+    text-align: center;
+  }
+  .dots {
+    display: none;
+  }
+  .section,
+  .msec {
+    padding: 80px 22px;
+  }
+  /* Banner bands: size to the artwork rather than a tall fixed floor, so the
+     character + card fit the phone without excess empty space. */
+  .msec.has-banner {
+    min-height: min(78svh, 620px);
+  }
+
+  /* Banner bands on phones: art stays full-bleed, scrim runs top->bottom,
+     the frosted info card goes full-width and centered. */
+  .msec.has-banner {
+    padding: 0;
+    min-height: 0;
+  }
+  .msec.has-banner .mwrap {
+    padding: 22px 18px;
+    justify-content: center;
+    align-items: flex-end;
+  }
+  .msec.has-banner .minfo {
+    flex-basis: 100%;
+    max-width: 480px;
+  }
+  /* On phones the card is centered full-width, so centre the art and run the
+     scrim top->bottom regardless of which side the card uses on desktop. */
+  .msec.has-banner .msec-banner {
+    background-position: center;
+  }
+  .msec-scrim,
+  .msec.card-right .msec-scrim {
+    transform: none;
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--deepest) 30%, transparent) 0%,
+        color-mix(in srgb, var(--deepest) 70%, transparent) 100%
+      );
+  }
+  .msec.has-banner .m-sign-wrap {
+    justify-content: center;
+  }
+  .msec.has-banner .m-sign {
+    max-width: 80%;
+  }
+}
+
+/* --- Small phones: tighten spacing, scale type, guarantee tap targets ----- */
+@media (max-width: 480px) {
+  .section {
+    padding: 64px 18px;
+  }
+  .section,
+  .msec {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  /* Profile facts stack to a single column so values aren't cramped. */
+  .pgrid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  /* Comfortable line length + slightly tighter lead on small screens. */
+  .lead {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  /* Stats wrap to a tidy 2-up instead of a cramped row. */
+  .stats {
+    gap: 28px 36px;
+  }
+  /* Roster cards: a clear tap target with breathing room. */
+  .roster-item {
+    flex-basis: 70vw;
+    min-height: 44px;
+  }
+  /* Keep the language switcher from crowding the very top edge. */
+  .lang-switch {
+    top: 10px;
+    right: 10px;
+  }
+}
+
+/* --- Reduced motion (handoff-suggested addition) ------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .sun-core,
+  .cloud,
+  .wordmark,
+  .foot-mark,
+  .scroll-cue .arrow,
+  .wave,
+  .hero-content > * {
+    animation: none !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .msec-banner,
+  .msec.has-banner:hover .msec-banner {
+    transform: scale(1.06);
+    transition: none;
+  }
+  .msec.has-banner:hover .minfo {
+    transform: none;
+  }
+  .msec.card-left.has-banner:hover .m-sign {
+    transform: rotate(-4deg);
+  }
+  .msec.card-right.has-banner:hover .m-sign {
+    transform: rotate(3deg);
+  }
+  .m-sign { transition: none; }
+  .roster-item:hover,
+  .roster-item:focus-visible,
+  .roster-item:hover .roster-img,
+  .roster-item:focus-visible .roster-img {
+    transform: none;
+  }
+  .disc-eq i,
+  .np-eq i {
+    animation: none;
+  }
+  .np-bar {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   Localization (EN / JP)
+   ========================================================================== */
+
+/* Crossfade on language switch. Only the translated text elements fade — the
+   artwork, backgrounds and chrome stay put so the swap reads as a clean
+   text dissolve rather than the whole page flickering. The JS provider holds
+   `.lang-switching` for ~220ms while it swaps the strings at the fade trough. */
+.eyebrow,
+.hero-eyebrow,
+.h2,
+.lead,
+.tagline,
+.scroll-cue,
+.stat-label,
+.m-name,
+.m-jp,
+.m-blurb,
+.chip,
+.plabel,
+.pval,
+.unit-tagline,
+.disc-year,
+.disc-title,
+.np-now,
+.np-title,
+.foot-mark,
+.foot-sub,
+.foot-note {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.page.lang-switching .eyebrow,
+.page.lang-switching .hero-eyebrow,
+.page.lang-switching .h2,
+.page.lang-switching .lead,
+.page.lang-switching .tagline,
+.page.lang-switching .scroll-cue,
+.page.lang-switching .stat-label,
+.page.lang-switching .m-name,
+.page.lang-switching .m-jp,
+.page.lang-switching .m-blurb,
+.page.lang-switching .chip,
+.page.lang-switching .plabel,
+.page.lang-switching .pval,
+.page.lang-switching .unit-tagline,
+.page.lang-switching .disc-year,
+.page.lang-switching .disc-title,
+.page.lang-switching .np-now,
+.page.lang-switching .np-title,
+.page.lang-switching .foot-mark,
+.page.lang-switching .foot-sub,
+.page.lang-switching .foot-note {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+/* Display headings use Fredoka (Latin-only). When the page is in Japanese,
+   fall back to Noto Sans JP so JP glyphs render in a matching weight rather
+   than the OS default. */
+html[lang='ja'] .h2,
+html[lang='ja'] .eyebrow,
+html[lang='ja'] .hero-eyebrow,
+html[lang='ja'] .hero-eyebrow-tag,
+html[lang='ja'] .tagline,
+html[lang='ja'] .m-name,
+html[lang='ja'] .stat-label,
+html[lang='ja'] .unit-tagline,
+html[lang='ja'] .foot-mark,
+html[lang='ja'] .foot-sub {
+  font-family: 'Noto Sans JP', 'Fredoka', sans-serif;
+}
+
+/* --- Language switcher: fixed frosted pill, top-right --------------------- */
+.lang-switch {
+  position: fixed;
+  top: 18px;
+  right: 22px;
+  z-index: 60;
+  display: inline-flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(10px) saturate(1.2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 6px 20px rgba(20, 58, 78, 0.16);
+}
+.lang-btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: transparent;
+  color: #2b6b86;
+  font-family: 'Fredoka', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.lang-btn:hover {
+  color: #ff7d2e;
+}
+.lang-btn:focus-visible {
+  outline: 2px solid #ff7d2e;
+  outline-offset: 2px;
+}
+.lang-btn.on {
+  background: linear-gradient(135deg, #ff9248, #ff7d2e);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(255, 125, 46, 0.4);
+}
+
+@media (max-width: 768px) {
+  .lang-switch {
+    top: 12px;
+    right: 12px;
+    padding: 3px;
+  }
+  .lang-btn {
+    padding: 5px 11px;
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lang-btn {
+    transition: none;
+  }
+}

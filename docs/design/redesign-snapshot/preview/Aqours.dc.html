@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/index.css">
+<style>body{margin:0;background:#fff9ef}.dc-note{font-family:'Nunito',sans-serif;font-size:12px;color:#6d8a97;text-align:center;padding:10px;background:#eef4f7}</style>
+</helmet>
+<div class="page">
+<div class="dc-note">Preview · portraits &amp; emblems shown as placeholders (assets live in public/assets/). Links the real src/index.css.</div>
+<div class="dots" role="navigation" aria-label="Jump to member"><sc-for list="{{ members }}" as="m" hint-placeholder-count="9"><button class="{{ m.dotCls }}" style="{{ m.style }}" aria-label="{{ m.name }}"><span>{{ m.num }}</span></button></sc-for></div>
+<div class="hero">
+<div class="sky"></div>
+<div class="sun"><div class="sun-core"></div></div>
+<div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+<div class="hero-content">
+<div class="hero-eyebrow">Love Live! Sunshine!! · Fan Tribute</div>
+<div class="slot hero-logo-img" style="height:120px;width:min(560px,80vw);font-size:13px">[ Aqours · logo art ]</div>
+<div class="tagline">Shine with us — here, now, by the sea.</div>
+<div class="hero-strip"><sc-for list="{{ members }}" as="m" hint-placeholder-count="9"><span class="hero-chip" style="{{ m.style }}"></span></sc-for></div>
+</div>
+<div class="scroll-cue">Scroll to dive in<span class="arrow">↓</span></div>
+<div class="waves"><div class="wave w1"><svg viewBox="0 0 2880 200" preserveAspectRatio="none"><path d="M0,120 C360,166 1080,166 1440,120 C1800,166 2520,166 2880,120 L2880,200 L0,200 Z" fill="#0077b6"></path></svg></div><div class="wave w2"><svg viewBox="0 0 2880 200" preserveAspectRatio="none"><path d="M0,120 C360,166 1080,166 1440,120 C1800,166 2520,166 2880,120 L2880,200 L0,200 Z" fill="#00a6e6"></path></svg></div><div class="wave w3"><svg viewBox="0 0 2880 200" preserveAspectRatio="none"><path d="M0,128 C360,170 1080,170 1440,128 C1800,170 2520,170 2880,128 L2880,200 L0,200 Z" fill="#cdeefb"></path></svg></div></div>
+</div>
+<section class="section">
+<div class="about reveal in">
+<div class="about-copy">
+<div class="eyebrow">School Idol Project</div>
+<h2 class="h2">Nine girls, one shining sea.</h2>
+<p class="lead">Aqours is the school idol group of Uranohoshi Girls' High School in Numazu, on Japan's sun-soaked Shizuoka coast. Refusing to watch their school quietly fade away, nine friends chase a single radiant dream — to shine, here and now, with everything they've got.</p>
+</div>
+<div class="stats">
+<div class="stat"><span class="stat-num">9</span><span class="stat-label">Members, nine colors</span></div>
+<div class="stat"><span class="stat-num blue">3</span><span class="stat-label">Sub-units</span></div>
+<div class="stat"><span class="stat-num purple">2016</span><span class="stat-label">Debut year</span></div>
+</div>
+</div>
+</section>
+<div class="members-head reveal in">
+<div class="eyebrow">Meet Aqours</div>
+<h2 class="h2">Nine hearts, nine colors.</h2>
+<p class="lead">Each member shines in her own hue — every profile below is themed to her image color. Scroll through, or tap a color to jump straight to her.</p>
+</div>
+<div class="memtabs" role="navigation" aria-label="Jump to member"><sc-for list="{{ members }}" as="m" hint-placeholder-count="9"><button class="{{ m.tabCls }}" style="{{ m.style }}" aria-label="{{ m.name }}">{{ m.num }}</button></sc-for></div>
+<sc-for list="{{ members }}" as="m" hint-placeholder-count="9">
+<section class="{{ m.cls }}" style="{{ m.style }}">
+<span class="bignum" aria-hidden="true">{{ m.num }}</span>
+<div class="mwrap">
+<div class="media">
+<div class="portrait"><span class="num" aria-hidden="true">{{ m.num }}</span><div class="glow"></div><div class="sil-body"></div><div class="sil-head"></div></div>
+<div class="slot emblem-badge" style="width:auto;padding:7px 11px">{{ m.logoLabel }}</div>
+</div>
+<div class="minfo">
+<div class="m-index">{{ m.memberLabel }}</div>
+<h3 class="m-name">{{ m.name }}</h3>
+<div class="m-jp">{{ m.jp }}</div>
+<div class="chips"><span class="chip unit">{{ m.unit }}</span><span class="chip oshi"><span class="swatch"></span>{{ m.colorName }}</span></div>
+<p class="m-blurb">{{ m.blurb }}</p>
+<div class="pgrid"><sc-for list="{{ m.fields }}" as="f" hint-placeholder-count="8"><div class="pcell"><div class="plabel">{{ f.label }}</div><div class="pval">{{ f.value }}</div></div></sc-for></div>
+</div>
+</div>
+</section>
+</sc-for>
+<section class="section subunits">
+<div class="reveal in"><div class="eyebrow">Three Sub-units</div><h2 class="h2">Smaller groups, same shine.</h2><p class="lead">Beyond the full nine, Aqours splits into three sub-units — each with its own sound and style.</p></div>
+<div class="unit-grid"><sc-for list="{{ subunits }}" as="u" hint-placeholder-count="3">
+<div class="unit-card reveal in" style="{{ u.style }}">
+<div class="unit-head"><h3 class="unit-name">{{ u.name }}</h3><p class="unit-tagline">{{ u.tagline }}</p></div>
+<div class="unit-members"><sc-for list="{{ u.members }}" as="mem" hint-placeholder-count="3"><div class="unit-member" style="{{ mem.style }}"><span class="unit-dot"></span><span class="unit-member-name">{{ mem.first }}</span><span class="unit-member-swatch"></span></div></sc-for></div>
+</div>
+</sc-for></div>
+</section>
+<section class="section">
+<div class="reveal in"><div class="eyebrow">Discography · 2015–2024</div><h2 class="h2">Songs that shine.</h2></div>
+<div class="disc"><sc-for list="{{ discs }}" as="d" hint-placeholder-count="6">
+<button class="{{ d.cls }}" style="{{ d.style }}" aria-label="{{ d.aria }}">
+<div class="disc-art"><img src="{{ d.cover }}" alt=""><span class="disc-tint"></span><span class="disc-play" aria-hidden="true">▶</span><div class="disc-meta"><span class="disc-year">{{ d.year }}</span><span class="disc-title">{{ d.title }}</span></div></div>
+</button>
+</sc-for></div>
+</section>
+<div class="foot">
+<div class="foot-wave"><svg viewBox="0 0 1440 100" preserveAspectRatio="none"><path d="M0,0 L1440,0 L1440,42 C1080,92 360,-8 0,42 Z" fill="#fff9ef"></path></svg></div>
+<div class="reveal in"><div class="foot-mark">Shine!!</div><div class="foot-sub">Aqours, forever sunshine.</div><p class="foot-note">A fan-made tribute celebrating Aqours from Love Live! Sunshine!! Aqours, its characters, and music are the property of their respective rights holders. Made with love, by the sea.</p></div>
+</div>
+<div class="np-bar open" aria-hidden="false">
+<div class="np-inner">
+<div class="np-label"><div class="np-cover" style="background:linear-gradient(135deg,#36b6f0,#0077b6)"></div><div class="np-text"><span class="np-now"><span class="np-eq"><i></i><i></i><i></i></span>Now playing</span><span class="np-title">Aozora Jumping Heart</span></div></div>
+<div class="np-controls"><button class="np-skip" aria-label="Previous">⏮</button><button class="np-play" aria-label="Pause">❚❚</button><button class="np-skip" aria-label="Next">⏭</button></div>
+<div class="np-progress"><span class="np-time">1:12</span><div class="np-track"><div class="np-fill" style="width:38%"><span class="np-knob"></span></div></div><span class="np-time">3:48</span></div>
+<button class="np-close" aria-label="Close player">×</button>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  renderVals() {
+    const M = [
+      { num:'01', name:'Chika Takami', jp:'高海千歌', cv:'Anju Inami (伊波杏樹)', birthday:'August 1', zodiac:'Leo', grade:'2nd Year', age:'16', height:'157 cm', blood:'O', unit:'CYaRon!', colorName:'Mikan Orange', trademark:'Mikan obsession', color:'#ff7d2e', blurb:'The boundlessly cheerful leader who turned one small wish into Aqours.' },
+      { num:'02', name:'Riko Sakurauchi', jp:'桜内梨子', cv:'Rikako Aida (逢田梨香子)', birthday:'September 19', zodiac:'Virgo', grade:'2nd Year', age:'16', height:'160 cm', blood:'A', unit:'Guilty Kiss', colorName:'Sakura Pink', trademark:'Piano & books', color:'#f2799f', blurb:'A graceful pianist from Tokyo who found her courage beside the sea.' },
+      { num:'03', name:'Kanan Matsuura', jp:'松浦果南', cv:'Nanaka Suwa (諏訪ななか)', birthday:'February 10', zodiac:'Aquarius', grade:'3rd Year', age:'17', height:'159 cm', blood:'O', unit:'AZALEA', colorName:'Aqua Green', trademark:'Scuba diving', color:'#16b6a8', blurb:'The warm, level-headed diver who keeps everyone steady and grounded.' },
+      { num:'04', name:'Dia Kurosawa', jp:'黒澤ダイヤ', cv:'Arisa Komiya (小宮有紗)', birthday:'January 1', zodiac:'Capricorn', grade:'3rd Year', age:'17', height:'162 cm', blood:'A', unit:'AZALEA', colorName:'Crimson Red', trademark:'Secret idol mania', color:'#e23b4b', blurb:'The dignified council president hiding a deeply idol-loving heart.' },
+      { num:'05', name:'You Watanabe', jp:'渡辺曜', cv:'Shuka Saito (斉藤朱夏)', birthday:'April 17', zodiac:'Aries', grade:'2nd Year', age:'16', height:'159 cm', blood:'A', unit:'CYaRon!', colorName:'Sky Blue', trademark:'“Yousoro!” salute', color:'#36b6f0', blurb:'Sporty and sunny — happiest on the water or stitching new costumes.' },
+      { num:'06', name:'Yoshiko Tsushima', jp:'津島善子', cv:'Aika Kobayashi (小林愛香)', birthday:'July 13', zodiac:'Cancer', grade:'1st Year', age:'15', height:'157 cm', blood:'O', unit:'Guilty Kiss', colorName:'Twilight Grey', trademark:'Fallen angel “Yohane”', color:'#8e8bb5', blurb:'A self-proclaimed fallen angel with an irresistible flair for drama.' },
+      { num:'07', name:'Hanamaru Kunikida', jp:'国木田花丸', cv:'Kanako Takatsuki (高槻かなこ)', birthday:'March 4', zodiac:'Pisces', grade:'1st Year', age:'15', height:'154 cm', blood:'B', unit:'AZALEA', colorName:'Sunshine Yellow', trademark:'“…zura”', color:'#f3c52b', blurb:'A gentle bookworm opening up to a whole new world, zura.' },
+      { num:'08', name:'Mari Ohara', jp:'小原鞠莉', cv:'Aina Suzuki (鈴木愛奈)', birthday:'June 13', zodiac:'Gemini', grade:'3rd Year', age:'17', height:'162 cm', blood:'AB', unit:'Guilty Kiss', colorName:'Royal Purple', trademark:'“Shiny!”', color:'#a673c4', blurb:'The free-spirited heiress who lives loud and shines even louder.' },
+      { num:'09', name:'Ruby Kurosawa', jp:'黒澤ルビィ', cv:'Ai Furihata (降幡愛)', birthday:'September 21', zodiac:'Virgo', grade:'1st Year', age:'15', height:'150 cm', blood:'O', unit:'CYaRon!', colorName:'Ruby Pink', trademark:'“Ganbaruby!”', color:'#ff7bb0', blurb:'The shy youngest who blossoms brightest under the stage lights.' },
+    ]
+    const VARIANTS = ['flood','wide','tight','wide','flood','tight','wide','flood','wide']
+    const FIELDS = [['Voice (CV)','cv'],['Birthday','birthday'],['Zodiac','zodiac'],['Grade','grade'],['Age','age'],['Height','height'],['Blood Type','blood'],['Trademark','trademark']]
+    const members = M.map((m, i) => {
+      const flip = i % 2 === 1
+      return {
+        ...m,
+        style: { '--c': m.color },
+        cls: `msec ${VARIANTS[i % VARIANTS.length]}${flip ? ' flip' : ''} reveal in`,
+        dotCls: `dot${i === 0 ? ' on' : ''}`,
+        tabCls: `memtab${i === 0 ? ' on' : ''}`,
+        memberLabel: `Member ${m.num}`,
+        logoLabel: `[ ${m.name.split(' ')[0]} · emblem ]`,
+        fields: FIELDS.map(([label, key]) => ({ label, value: m[key] })),
+      }
+    })
+    const unitMeta = [
+      { name:'CYaRon!', color:'#ff7d2e', tagline:'Bright, energetic, and full of seaside sunshine.' },
+      { name:'AZALEA', color:'#16b6a8', tagline:'Cool, composed, and effortlessly elegant.' },
+      { name:'Guilty Kiss', color:'#a673c4', tagline:'Bold, sultry, and unmistakably striking.' },
+    ]
+    const subunits = unitMeta.map((u) => ({
+      ...u,
+      style: { '--c': u.color },
+      members: members.filter((m) => m.unit === u.name).map((m) => ({ first: m.name.split(' ')[0], style: { '--mc': m.color } })),
+    }))
+    const covers = [
+      'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e023c2c6695bbef83300d49dc38',
+      'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02dc6f7e80659b857be8ff0a95',
+      'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e029942a3beab0cfed34d5fdb29',
+      'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e021d931cf9f4d549a71629ed2c',
+      'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e025159c00e5c1876b57ad9aa95',
+      'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e0243ce6fe039e2dc47ae3f0e40',
+    ]
+    const discMeta = [
+      ['2015','Kimi no Kokoro wa Kagayaiteru kai?'],['2016','Aozora Jumping Heart'],['2016','Yume Kataru yori Yume Utaou'],['2016','Omoi yo Hitotsu ni Nare'],['2017','MY Mai☆TONIGHT'],['2024','Eikyuu Hours'],
+    ]
+    const tints = [
+      'linear-gradient(160deg, rgba(255,122,89,0.0), rgba(255,122,89,0.45))',
+      'linear-gradient(160deg, rgba(54,182,240,0.0), rgba(0,119,182,0.45))',
+      'linear-gradient(160deg, rgba(22,182,168,0.0), rgba(54,182,240,0.45))',
+      'linear-gradient(160deg, rgba(166,115,196,0.0), rgba(255,123,176,0.45))',
+      'linear-gradient(160deg, rgba(255,207,63,0.0), rgba(255,125,46,0.45))',
+      'linear-gradient(160deg, rgba(242,121,159,0.0), rgba(166,115,196,0.45))',
+    ]
+    const discs = discMeta.map(([year, title], i) => ({
+      year, title, cover: covers[i], aria: `Play ${title}`,
+      cls: `disc-tile${i === 0 ? ' feature' : ''} reveal in`,
+      style: { '--tint': tints[i % tints.length] },
+    }))
+    return { members, subunits, discs }
+  }
+}
+</script>
+</body>
+</html>
