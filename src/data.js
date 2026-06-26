@@ -273,10 +273,24 @@ export const discs = [
       'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e025159c00e5c1876b57ad9aa95',
   },
   {
+    year: '2023',
+    title: 'Genjitsu Mysterium',
+    spotify: 'https://open.spotify.com/embed/track/1yyEOzKmdW2OdzwRLdwwnE',
+    cover:
+      'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02e4b07526a844677accf8a3bf',
+  },
+  {
     year: '2024',
     title: 'Eikyuu Hours',
     spotify: 'https://open.spotify.com/embed/track/0d7HxyRChgSXwmTlflrB4r',
     cover:
       'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e0243ce6fe039e2dc47ae3f0e40',
+  },
+  {
+    year: '2025',
+    title: 'KU-RU-KU-RU Cruller!',
+    spotify: 'https://open.spotify.com/embed/track/5O2cVcJPeMUNFERDQQudl5',
+    cover:
+      'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02381bc78a1a06d67bac9fe041',
   },
 ]
