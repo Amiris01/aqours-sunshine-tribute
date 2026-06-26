@@ -8,24 +8,26 @@
       Content-Security-Policy: defense-in-depth for a static, no-backend site.
       - 'unsafe-inline' on style-src is required by React inline style={{…}} props
         and the Google Fonts stylesheet.
-      - Spotify: the IFrame API script (open.spotify.com), the embed iframe
-        (open.spotify.com), and album-cover images (*.spotifycdn.com).
+      - Spotify: the embed iframe and its IFrame API helper script load from
+        open.spotify.com and embed-cdn.spotifycdn.com; album covers from
+        *.spotifycdn.com / i.scdn.co.
       - Google Fonts: CSS from fonts.googleapis.com, font files from fonts.gstatic.com.
-      No 'unsafe-eval' — the app and its deps don't need it.
+      'unsafe-eval' is required by Spotify's embed IFrame API, which evaluates
+        code at runtime; it is scoped to script-src only.
+      frame-ancestors is omitted: it is ignored in a <meta> CSP (header-only).
     -->
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self';
-        script-src 'self' https://open.spotify.com;
+        script-src 'self' 'unsafe-eval' https://open.spotify.com https://embed-cdn.spotifycdn.com;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
         font-src 'self' https://fonts.gstatic.com;
         img-src 'self' data: https://*.spotifycdn.com https://i.scdn.co;
-        connect-src 'self' https://open.spotify.com;
+        connect-src 'self' https://open.spotify.com https://*.spotify.com;
         frame-src https://open.spotify.com;
         base-uri 'self';
         form-action 'none';
-        object-src 'none';
-        frame-ancestors 'self'"
+        object-src 'none'"
     />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
