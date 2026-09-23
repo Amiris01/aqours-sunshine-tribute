@@ -1,5 +1,7 @@
 import { useRef, useState, type CSSProperties, type KeyboardEvent } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import { AnimatePresence, m as motion } from 'motion/react'
+import { DUR, EASE } from '../../motion/tokens'
 import { releases } from '../../content/discography'
 import { pick } from '../../content/types'
 import { onColor } from '../../lib/color'
@@ -75,7 +77,17 @@ export function Discography() {
                 <span className="hidden text-sm text-haze md:block">{pick(r.kind, lang)}</span>{' '}
                 <span className="font-led text-lg">{r.year}</span>
               </button>
-              {open && (
+              {/* Rows slide open and closed; the content fades in just behind the height. */}
+              <AnimatePresence initial={false}>
+                {open && (
+                <motion.div
+                  key="panel"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ height: { duration: DUR.base, ease: EASE }, opacity: { duration: DUR.quick, ease: EASE } }}
+                  className="overflow-hidden"
+                >
                 <div id={`setlist-${r.id}`} className="grid gap-6 pb-8 md:grid-cols-[4.5rem_12rem_1fr] md:gap-x-4">
                   <span aria-hidden="true" className="hidden md:block" />
                   <img
@@ -101,7 +113,9 @@ export function Discography() {
                     <p className="mt-4 max-w-[52ch] text-sm text-haze">{t('np.previewNote')}</p>
                   </div>
                 </div>
-              )}
+                </motion.div>
+                )}
+              </AnimatePresence>
             </li>
           )
         })}

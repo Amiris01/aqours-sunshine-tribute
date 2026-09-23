@@ -67,3 +67,11 @@ it('shows a cover thumbnail on every row and an equaliser on the on-air row', as
   usePlayer.getState().playAt(1)
   expect(await within(row(1)).findByTestId('eq')).toBeInTheDocument()
 })
+
+it('collapses the previously open row when another opens', async () => {
+  const { waitFor } = await import('@testing-library/react')
+  render(<Discography />)
+  await userEvent.click(row(2))
+  await waitFor(() => expect(screen.getAllByTestId('release-blurb')).toHaveLength(1))
+  expect(screen.getByTestId('release-blurb')).toHaveTextContent(releases[2]!.blurb.en)
+})

@@ -12,6 +12,11 @@
   --font-display: "Dela Gothic One", "Zen Kaku Gothic New", system-ui, sans-serif;
   --font-led: "DotGothic16", ui-monospace, monospace;
   --font-sans: "Zen Kaku Gothic New", system-ui, sans-serif;
+
+  /* Motion system (mirrors src/motion/tokens.ts): every transition eases out the same way. */
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --default-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  --default-transition-duration: 240ms;
 }
 
 html {
@@ -47,3 +52,7 @@ html.lenis, html.lenis body { height: auto; }
   [data-sway="true"] .blade-sway { animation: sway 0.9s ease-in-out infinite alternate; }
   .eq-bar { animation: eq 0.9s ease-in-out infinite; }
 }
+
+/* Language switch: a quick dip so text swaps without a jump (skipped under reduced motion). */
+#root { transition: opacity 140ms cubic-bezier(0.22, 1, 0.36, 1); }
+html.lang-fade #root { opacity: 0.2; }

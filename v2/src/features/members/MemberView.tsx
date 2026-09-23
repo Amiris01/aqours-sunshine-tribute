@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties } from 'react'
+import { useRef, useState, type CSSProperties } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { AnimatePresence, m as motion } from 'motion/react'
 import { members, memberAssets } from '../../content/members'
@@ -7,6 +7,7 @@ import { formatBirthday } from '../../lib/format'
 import { ArrowIcon, CloseIcon } from '../../lib/icons'
 import { useT, type Key } from '../../i18n'
 import { useLang } from '../../store/lang'
+import { DUR, EASE } from '../../motion/tokens'
 
 interface Props {
   num: string | null
@@ -26,8 +27,13 @@ export function MemberView({ num, onNavigate, onClose, returnFocus }: Props) {
   const lastNum = useRef<string | null>(null)
   if (num) lastNum.current = num
 
+  // Which way the visitor is moving through the nine: 1 = next, -1 = previous, 0 = just opened.
+  const [dir, setDir] = useState(0)
+  if (!num && dir !== 0) setDir(0)
+
   const go = (d: number) => {
     if (idx < 0) return
+    setDir(d)
     onNavigate(members[(idx + d + members.length) % members.length]!.num)
   }
 
@@ -69,19 +75,26 @@ export function MemberView({ num, onNavigate, onClose, returnFocus }: Props) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, y: 12 }}
-                transition={{ duration: 0.25 }}
+                transition={{ duration: DUR.base, ease: EASE }}
                 className="mx-auto grid min-h-full max-w-6xl items-center gap-8 p-4 pt-8 md:grid-cols-[1.15fr_1fr] md:gap-12 md:p-10"
               >
                 <motion.div
                   key={m.num}
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  data-testid="member-art"
+                  data-direction={dir}
+                  initial={dir === 0 ? { opacity: 0, scale: 0.96 } : { opacity: 0, x: dir * 56 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  transition={{ duration: DUR.slow, ease: EASE }}
                   className="relative aspect-[16/10] overflow-hidden rounded-[6px] border-b-4 border-[var(--c)] md:aspect-auto md:h-[74vh]"
                 >
                   <img src={memberAssets(m).banner} alt="" className="h-full w-full object-cover" />
                 </motion.div>
-                <div>
+                <motion.div
+                  key={`info-${m.num}`}
+                  initial={dir === 0 ? { opacity: 0 } : { opacity: 0, x: dir * 28 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: DUR.base, ease: EASE, delay: dir === 0 ? 0.08 : 0.04 }}
+                >
                   <p className="font-led text-2xl text-[var(--c)]">No.{m.num}</p>
                   <Dialog.Title className="mt-2 font-display text-[clamp(2.2rem,5vw,3.75rem)] leading-[1.05]">{m.name}</Dialog.Title>
                   <p lang="ja" className="mt-2 text-lg text-haze">{m.jp}</p>
@@ -110,7 +123,7 @@ export function MemberView({ num, onNavigate, onClose, returnFocus }: Props) {
                     <button type="button" className={navBtn} onClick={() => go(1)} aria-label={t('members.next')}><ArrowIcon /></button>
                     <Dialog.Close className={`${navBtn} ml-auto`} aria-label={t('members.close')}><CloseIcon /></Dialog.Close>
                   </div>
-                </div>
+                </motion.div>
               </motion.div>
             </Dialog.Content>
           </Dialog.Portal>

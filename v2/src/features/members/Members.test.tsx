@@ -67,3 +67,14 @@ it('prints her birthday like a show date and her unit on the ticket stub', () =>
   expect(chika).toHaveTextContent('08.01')
   expect(chika).toHaveTextContent('CYaRon!')
 })
+
+it('slides the next member in from the direction you move', async () => {
+  const user = userEvent.setup()
+  render(<Members />)
+  await user.click(screen.getByRole('button', { name: 'Open Chika Takami' }))
+  await screen.findByRole('dialog')
+  await user.keyboard('{ArrowRight}')
+  expect(screen.getByTestId('member-art')).toHaveAttribute('data-direction', '1')
+  await user.keyboard('{ArrowLeft}')
+  expect(screen.getByTestId('member-art')).toHaveAttribute('data-direction', '-1')
+})
