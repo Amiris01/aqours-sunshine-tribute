@@ -85,3 +85,19 @@ describe('release blurbs', () => {
     }
   })
 })
+
+describe('added releases', () => {
+  it('includes Thank you, FRIENDS!! and Brightest Melody in release order', () => {
+    const ids = releases.map((r) => r.id)
+    expect(releases).toHaveLength(10)
+    expect(releases.find((r) => r.id === 'thank-you-friends')).toMatchObject({
+      year: 2018, date: '2018-08-01', spotify: 'https://open.spotify.com/embed/track/7pWdvkEHlPs8psbYQl7oyI',
+    })
+    expect(releases.find((r) => r.id === 'brightest-melody')).toMatchObject({
+      year: 2019, date: '2019-02-06', spotify: 'https://open.spotify.com/embed/track/5BBzwer9yZKtH89QRwxhXS',
+    })
+    expect(ids.indexOf('my-mai-tonight')).toBeLessThan(ids.indexOf('thank-you-friends'))
+    expect(ids.indexOf('thank-you-friends')).toBeLessThan(ids.indexOf('brightest-melody'))
+    expect(ids.indexOf('brightest-melody')).toBeLessThan(ids.indexOf('kurukuru-cruller'))
+  })
+})

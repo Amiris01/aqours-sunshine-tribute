@@ -85,7 +85,7 @@ export const ja: Dict = {
 
   'hero.penlight': "{name}のプロフィールを開く",
   'hero.penlights': "ペンライト — メンバーを選ぶ",
-  'disc.lead': "2015年から2024年までのAqoursの8曲を、リリース順に。",
+  'disc.lead': '2015年から2024年までのAqoursの10曲を、リリース順に。',
   'np.onAir': "ON AIR",
 
   'rainbow.h2': "Aqours Rainbow",

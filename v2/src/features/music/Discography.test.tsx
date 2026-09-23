@@ -11,11 +11,11 @@ beforeEach(() => {
   usePlayer.setState({ engineFailed: false })
 })
 
-const row = (i: number) => screen.getByRole('button', { name: new RegExp(`^M0${i + 1} `) })
+const row = (i: number) => screen.getByRole('button', { name: new RegExp(`^M${String(i + 1).padStart(2, '0')} `) })
 
 it('lists every release as a numbered setlist row, first one open', () => {
   render(<Discography />)
-  expect(screen.getAllByRole('button', { name: /^M0\d / })).toHaveLength(releases.length)
+  expect(screen.getAllByRole('button', { name: /^M\d\d / })).toHaveLength(releases.length)
   expect(row(0)).toHaveAttribute('aria-expanded', 'true')
   expect(row(1)).toHaveAttribute('aria-expanded', 'false')
   expect(screen.getByTestId('release-blurb')).toHaveTextContent(releases[0]!.blurb.en)

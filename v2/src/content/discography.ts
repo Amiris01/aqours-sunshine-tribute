@@ -78,6 +78,30 @@ export const releases: Release[] = [
     },
   },
   {
+    id: 'thank-you-friends', year: 2018, date: '2018-08-01',
+    title: 'Thank you, FRIENDS!!', titleJp: 'Thank you, FRIENDS!!',
+    kind: { en: '4th LoveLive! theme', ja: '4thライブ テーマソング' },
+    spotify: 'https://open.spotify.com/embed/track/7pWdvkEHlPs8psbYQl7oyI',
+    cover: 'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e026db0e7c1c4971f8d75f74065',
+    accent: '#FF6FBE',
+    blurb: {
+      en: "Theme of the 4th LoveLive! ~Sailing to the Sunshine~ at Tokyo Dome, released on Chika's birthday.",
+      ja: '東京ドームで開催された4thライブ「Sailing to the Sunshine」のテーマソング。千歌の誕生日にリリース。',
+    },
+  },
+  {
+    id: 'brightest-melody', year: 2019, date: '2019-02-06',
+    title: 'Brightest Melody', titleJp: 'Brightest Melody',
+    kind: { en: 'Over the Rainbow insert song', ja: '劇場版『Over the Rainbow』挿入歌' },
+    spotify: 'https://open.spotify.com/embed/track/5BBzwer9yZKtH89QRwxhXS',
+    cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e026db0e7c1c4971f8d75f74065',
+    accent: '#DB0839',
+    blurb: {
+      en: 'Insert song from the film Over the Rainbow, sung by all nine before the third-years graduated.',
+      ja: '劇場版『Over the Rainbow』の挿入歌。3年生の卒業を前に、9人で歌った一曲。',
+    },
+  },
+  {
     id: 'kurukuru-cruller', year: 2021, date: '2021-09-22',
     title: 'KU-RU-KU-RU Cruller!', titleJp: 'KU-RU-KU-RU Cruller!',
     kind: { en: 'Monster Strike collaboration theme', ja: 'モンスト コラボテーマソング' },

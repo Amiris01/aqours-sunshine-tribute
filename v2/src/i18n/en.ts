@@ -84,7 +84,7 @@ export const en = {
 
   'hero.penlight': "{name}: open profile",
   'hero.penlights': "Penlights — choose a member",
-  'disc.lead': "Eight Aqours songs, 2015 to 2024, in release order.",
+  'disc.lead': 'Ten Aqours songs, 2015 to 2024, in release order.',
   'np.onAir': "On air",
 
   'rainbow.h2': "Aqours Rainbow",
