@@ -91,6 +91,11 @@ export const ja: Dict = {
   'rainbow.h2': "Aqours Rainbow",
   'rainbow.caption': "2025年6月、ベルーナドームでのFinale LoveLive!では、両日ともファンがペンライトで客席に「Aqours Rainbow」を描きました。",
 
+  'np.live': "ライブスペクトラム",
+  'np.liveHelp': "実際のスペクトラムを表示するには「このタブ」を選び、「タブの音声を共有」をオンにしてください。",
+  'np.liveNoAudio': "音声が共有されませんでした。「このタブ」を選び、「タブの音声を共有」をオンにしてください。",
+  'np.liveError': "ライブスペクトラムを開始できませんでした。標準表示に切り替えます。",
+
   'foot.mark': '輝け!!',
   'foot.sub': 'Aqours、永遠の輝き。',
   'foot.note':

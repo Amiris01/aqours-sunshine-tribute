@@ -10,6 +10,7 @@ import { onColor } from '../../lib/color'
 import { CloseIcon, MinimizeIcon, NextIcon, PauseIcon, PlayIcon, PrevIcon } from '../../lib/icons'
 import { startSpotify } from './spotifyBridge'
 import { Visualizer } from './Visualizer'
+import { useLiveSpectrum } from '../../store/liveSpectrum'
 
 const btn = 'grid size-10 place-items-center rounded-[3px] text-ink transition hover:bg-line disabled:opacity-40'
 
@@ -59,9 +60,13 @@ export function Player() {
     if (minimized) document.querySelector<HTMLElement>('[data-np-pill]')?.focus()
   }, [minimized])
 
+  const liveSpectrum = useLiveSpectrum()
+
   const close = () => {
     const back = returnFocusRef.current
     usePlayer.getState().close()
+    // Closing the player also ends any tab-audio share for the live spectrum.
+    if (liveSpectrum.status === 'live') liveSpectrum.stop()
     if (back?.isConnected) back.focus()
   }
 
@@ -99,8 +104,9 @@ export function Player() {
             style={{ '--accent': track.accent } as CSSProperties}
             className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-[var(--accent)] bg-deep"
           >
-            {/* Penlight equaliser rising from the top edge (state-driven; see Visualizer). */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-full h-9">
+            {/* Penlight spectrum rising from the top edge: real when Live spectrum is on,
+                synthesized otherwise (see Visualizer). */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-full h-12">
               <Visualizer
                 color={track.accent}
                 status={status}
@@ -109,8 +115,18 @@ export function Player() {
                 position={position}
                 bpm={track.bpm}
                 beatOffset={track.beatOffset}
+                analyser={liveSpectrum.analyser}
               />
             </div>
+            {['denied', 'noaudio', 'error'].includes(liveSpectrum.status) && (
+              <p role="status" className="mx-auto max-w-6xl px-4 pt-2 text-sm text-haze">
+                {liveSpectrum.status === 'denied'
+                  ? t('np.liveHelp')
+                  : liveSpectrum.status === 'noaudio'
+                    ? t('np.liveNoAudio')
+                    : t('np.liveError')}
+              </p>
+            )}
             <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 md:flex-nowrap">
               <img src={track.cover} alt="" className="size-12 shrink-0 rounded-[3px]" />
               <div className="min-w-0 flex-1 md:w-56 md:flex-none">
@@ -181,6 +197,21 @@ export function Player() {
               )}
 
               <div className="ml-auto flex items-center gap-1">
+                {liveSpectrum.supported && (
+                  <button
+                    type="button"
+                    aria-pressed={liveSpectrum.status === 'live'}
+                    disabled={liveSpectrum.status === 'starting'}
+                    onClick={() => (liveSpectrum.status === 'live' ? liveSpectrum.stop() : void liveSpectrum.start())}
+                    className="mr-1 inline-flex items-center gap-2 whitespace-nowrap rounded-[3px] border border-line px-3 py-1.5 text-sm text-haze transition hover:border-ink hover:text-ink aria-pressed:border-[var(--accent)] aria-pressed:text-ink"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`size-2 rounded-full ${liveSpectrum.status === 'live' ? 'bg-[var(--accent)] motion-safe:animate-pulse' : 'border border-current'}`}
+                    />
+                    {t('np.live')}
+                  </button>
+                )}
                 {status !== 'error' && openUrl && (
                   <a
                     href={openUrl}

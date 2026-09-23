@@ -30,9 +30,17 @@ it('stays static under reduced motion', () => {
   }
 })
 
-it('syncs to the beat when the song has a tempo, else falls back to waves', () => {
+it('draws the real spectrum when live audio is connected, else a synthesized one', () => {
   const { rerender } = render(<Visualizer color="#FF9547" status="playing" seed="kimi" progress={0.2} bpm={182} position={10} />)
   expect(viz()).toHaveAttribute('data-mode', 'beat')
   rerender(<Visualizer color="#FF9547" status="playing" seed="cruller" progress={0.2} position={10} />)
   expect(viz()).toHaveAttribute('data-mode', 'wave')
+  const analyser = {
+    fftSize: 2048,
+    frequencyBinCount: 1024,
+    context: { sampleRate: 48000 },
+    getByteFrequencyData: () => {},
+  } as unknown as AnalyserNode
+  rerender(<Visualizer color="#FF9547" status="playing" seed="kimi" progress={0.2} bpm={182} position={10} analyser={analyser} />)
+  expect(viz()).toHaveAttribute('data-mode', 'live')
 })

@@ -107,3 +107,32 @@ it('crowns the docked player with the penlight equaliser', async () => {
   const region = await screen.findByRole('region', { name: 'Music player' })
   expect(within(region).getByTestId('visualizer')).toHaveAttribute('data-state', 'loading')
 })
+
+describe('Live spectrum button', () => {
+  it('appears where tab audio can be captured and starts a capture', async () => {
+    const { useLiveSpectrum } = await import('../../store/liveSpectrum')
+    const start = vi.fn()
+    useLiveSpectrum.setState({ supported: true, status: 'off', start })
+    render(<Player />)
+    usePlayer.getState().playAt(0)
+    await userEvent.click(await screen.findByRole('button', { name: 'Live spectrum' }))
+    expect(start).toHaveBeenCalled()
+  })
+
+  it('is hidden where the browser cannot capture tab audio', async () => {
+    const { useLiveSpectrum } = await import('../../store/liveSpectrum')
+    useLiveSpectrum.setState({ supported: false, status: 'off' })
+    render(<Player />)
+    usePlayer.getState().playAt(0)
+    await screen.findByRole('region', { name: 'Music player' })
+    expect(screen.queryByRole('button', { name: 'Live spectrum' })).not.toBeInTheDocument()
+  })
+
+  it('explains a declined prompt', async () => {
+    const { useLiveSpectrum } = await import('../../store/liveSpectrum')
+    useLiveSpectrum.setState({ supported: true, status: 'denied' })
+    render(<Player />)
+    usePlayer.getState().playAt(0)
+    expect(await screen.findByText(/This tab/)).toBeInTheDocument()
+  })
+})

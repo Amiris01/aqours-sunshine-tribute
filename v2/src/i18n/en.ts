@@ -90,6 +90,11 @@ export const en = {
   'rainbow.h2': "Aqours Rainbow",
   'rainbow.caption': "At the Finale LoveLive! at Belluna Dome in June 2025, fans set their penlights to paint an Aqours Rainbow across the audience on both days.",
 
+  'np.live': "Live spectrum",
+  'np.liveHelp': "To see the real spectrum, choose “This tab” and keep “Share tab audio” on.",
+  'np.liveNoAudio': "No sound was shared. Choose “This tab” and keep “Share tab audio” on.",
+  'np.liveError': "Couldn't start the live spectrum; showing the standard one.",
+
   'foot.mark': 'Shine!!',
   'foot.sub': 'Aqours, forever sunshine.',
   'foot.note':
