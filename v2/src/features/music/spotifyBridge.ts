@@ -98,10 +98,16 @@ export function createSpotifyEngine(
     // update from mid-track. Stale end-of-track updates from the previous track that
     // arrive after a load (Spotify queues several) can therefore never cascade.
     let armed = false
+    // The URI the embed currently holds; asking for it again only needs play() —
+    // loadUri reloads the embed (and makes it fire `ready` again).
+    let loaded = initialUri
     const engine: Engine = {
       load(uri) {
         armed = false
-        c.loadUri(uri)
+        if (uri !== loaded) {
+          loaded = uri
+          c.loadUri(uri)
+        }
         c.play()
       },
       toggle: () => c.togglePlay(),
@@ -110,6 +116,9 @@ export function createSpotifyEngine(
     }
     c.addListener('ready', () => {
       if (failed) return // too late: the player already shows the fallback
+      // Spotify fires `ready` again after every loadUri; attaching again would reload
+      // the current track and loop forever, so only the first one counts.
+      if (ready) return
       ready = true
       window.clearTimeout(readyTimer)
       sink.attachEngine(engine)

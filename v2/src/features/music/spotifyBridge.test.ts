@@ -155,3 +155,30 @@ describe('startSpotify', () => {
     expect(s.fail).toHaveBeenCalledTimes(1)
   })
 })
+
+it('attaches only on the first ready — Spotify fires ready again after every loadUri (no reload loop)', () => {
+  const { api, controller, emit } = fakeApi()
+  const s = sink()
+  vi.mocked(s.attachEngine).mockImplementation((engine) => engine.load('spotify:track:B'))
+  createSpotifyEngine(api, document.createElement('div'), s, 'spotify:track:A')
+  emit('ready')
+  emit('ready') // Spotify re-fires ready after the loadUri above
+  emit('ready')
+  expect(s.attachEngine).toHaveBeenCalledTimes(1)
+  expect(controller.loadUri).toHaveBeenCalledTimes(1)
+})
+
+it('just plays when asked for the URI the embed was created with', () => {
+  const { api, controller, emit } = fakeApi()
+  const s = sink()
+  createSpotifyEngine(api, document.createElement('div'), s, 'spotify:album:A')
+  emit('ready')
+  const engine = vi.mocked(s.attachEngine).mock.calls[0]![0]
+  engine.load('spotify:album:A')
+  expect(controller.loadUri).not.toHaveBeenCalled()
+  expect(controller.play).toHaveBeenCalledTimes(1)
+  engine.load('spotify:track:B')
+  expect(controller.loadUri).toHaveBeenCalledWith('spotify:track:B')
+  engine.load('spotify:album:A')
+  expect(controller.loadUri).toHaveBeenLastCalledWith('spotify:album:A')
+})

@@ -89,3 +89,14 @@ it('moves focus to the top-bar pill on minimize and back to the trigger on close
   await userEvent.click(await screen.findByRole('button', { name: 'Close player' }))
   await waitFor(() => expect(trigger).toHaveFocus())
 })
+
+it('keeps the Spotify embed host in the viewport with real size (a zero-size/offscreen embed never fires ready)', () => {
+  render(<Player />)
+  const host = screen.getByTestId('spotify-host')
+  expect(host.style.position).toBe('fixed')
+  expect(host.style.height).toBe('80px')
+  expect(host.style.width).not.toBe('0px')
+  expect(host.style.opacity).toBe('0')
+  expect(host.style.pointerEvents).toBe('none')
+  expect(host.style.left).not.toMatch(/^-/)
+})

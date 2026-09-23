@@ -73,8 +73,14 @@ export function Player() {
 
   return (
     <>
-      {/* Spotify iframe host: in-flow, zero height (a 1px/opacity-0 iframe breaks playback). */}
-      <div className="pointer-events-none h-0 overflow-hidden" aria-hidden="true">
+      {/* Spotify iframe host. The embed only initialises (fires `ready`) when its iframe is
+          inside the viewport with real size — a zero-height, clipped or off-screen host never
+          becomes ready. So: full 80px size, fixed in view, invisible and click-through. */}
+      <div
+        data-testid="spotify-host"
+        aria-hidden="true"
+        style={{ position: 'fixed', left: 0, bottom: 0, width: '300px', height: '80px', opacity: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}
+      >
         <div ref={containerRef} />
       </div>
       <AnimatePresence>
