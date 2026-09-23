@@ -33,3 +33,17 @@ body {
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-stopped { overflow: hidden; }
+
+/* Penlights sway together while music plays — a crowd keeping time. */
+@keyframes sway {
+  from { transform: rotate(var(--tilt, 0deg)) translateY(0); }
+  to { transform: rotate(calc(var(--tilt, 0deg) * -1 + var(--lean, 0deg))) translateY(-2px); }
+}
+@keyframes eq {
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-sway="true"] .blade-sway { animation: sway 0.9s ease-in-out infinite alternate; }
+  .eq-bar { animation: eq 0.9s ease-in-out infinite; }
+}

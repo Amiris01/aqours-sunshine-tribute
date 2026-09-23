@@ -60,3 +60,10 @@ it('closes when clicking the backdrop outside the content', async () => {
   await userEvent.click(screen.getByTestId('member-backdrop'))
   await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
 })
+
+it('prints her birthday like a show date and her unit on the ticket stub', () => {
+  render(<Members />)
+  const chika = screen.getByRole('button', { name: 'Open Chika Takami' })
+  expect(chika).toHaveTextContent('08.01')
+  expect(chika).toHaveTextContent('CYaRon!')
+})

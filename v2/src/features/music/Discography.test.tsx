@@ -8,6 +8,7 @@ import { releases } from '../../content/discography'
 beforeEach(() => {
   useLang.getState().setLang('en')
   usePlayer.getState().close()
+  usePlayer.setState({ engineFailed: false })
 })
 
 const row = (i: number) => screen.getByRole('button', { name: new RegExp(`^M0${i + 1} `) })
@@ -57,4 +58,12 @@ it('re-shows the player fallback when Play is pressed on the current release aft
   usePlayer.getState().setMinimized(true)
   await userEvent.click(screen.getByRole('button', { name: `Play ${releases[0]!.title}` }))
   expect(usePlayer.getState()).toMatchObject({ index: 0, status: 'error', minimized: false })
+})
+
+it('shows a cover thumbnail on every row and an equaliser on the on-air row', async () => {
+  render(<Discography />)
+  for (let i = 0; i < releases.length; i++) expect(row(i).querySelector('img')).not.toBeNull()
+  expect(screen.queryByTestId('eq')).not.toBeInTheDocument()
+  usePlayer.getState().playAt(1)
+  expect(await within(row(1)).findByTestId('eq')).toBeInTheDocument()
 })

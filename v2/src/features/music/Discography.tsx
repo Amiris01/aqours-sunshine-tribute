@@ -43,31 +43,40 @@ export function Discography() {
                   rowRefs.current[i] = el
                 }}
                 type="button"
-                aria-label={`${code(i)} ${r.title} (${r.titleJp}), ${r.year}${onAir ? `, ${t('np.onAir')}` : ''}`}
                 aria-expanded={open}
                 aria-controls={`setlist-${r.id}`}
                 onClick={() => setSel(i)}
                 onKeyDown={(e) => onKey(e, i)}
-                className="grid w-full grid-cols-[3.25rem_1fr_auto] items-baseline gap-x-4 py-5 text-left transition hover:bg-deep/60 md:grid-cols-[4.5rem_1fr_14rem_4rem]"
+                className="grid w-full grid-cols-[3rem_3rem_1fr_auto] items-center gap-x-4 py-4 text-left transition hover:bg-deep/60 md:grid-cols-[4.5rem_3.5rem_1fr_14rem_4rem]"
               >
                 <span className={`font-led text-lg ${onAir ? 'text-[var(--accent)]' : 'text-haze'}`}>
                   {code(i)}
-                </span>
+                </span>{' '}
+                <img src={r.cover} alt="" loading="lazy" className="size-12 rounded-[3px] object-cover md:size-14" />
                 <span>
                   <span lang="ja" className="block text-xl font-bold leading-snug md:text-2xl">{r.titleJp}</span>
-                  <span className="mt-1 block text-haze">{r.title}</span>
+                  {' '}<span className="mt-1 block text-haze">{r.title}</span>
                   {onAir && (
                     <span className="mt-2 inline-flex items-center gap-2 text-sm font-bold text-[var(--accent)]">
-                      <span aria-hidden="true" className="size-2 rounded-full bg-[var(--accent)] motion-safe:animate-pulse" />
-                      {t('np.onAir')}
+                      {/* Equaliser: bounces while playing, holds still when paused or motion is reduced. */}
+                      <span data-testid="eq" aria-hidden="true" className="flex h-3.5 items-end gap-[3px]">
+                        {[0, 0.25, 0.5].map((d) => (
+                          <span
+                            key={d}
+                            className={`block h-full w-[3px] origin-bottom bg-[var(--accent)] ${playing ? 'eq-bar' : 'scale-y-50'}`}
+                            style={{ animationDelay: `${-d}s` }}
+                          />
+                        ))}
+                      </span>
+                      {' '}{t('np.onAir')}
                     </span>
                   )}
-                </span>
-                <span className="hidden text-sm text-haze md:block">{pick(r.kind, lang)}</span>
+                </span>{' '}
+                <span className="hidden text-sm text-haze md:block">{pick(r.kind, lang)}</span>{' '}
                 <span className="font-led text-lg">{r.year}</span>
               </button>
               {open && (
-                <div id={`setlist-${r.id}`} className="grid gap-6 pb-8 md:grid-cols-[4.5rem_11rem_1fr] md:gap-x-4">
+                <div id={`setlist-${r.id}`} className="grid gap-6 pb-8 md:grid-cols-[4.5rem_12rem_1fr] md:gap-x-4">
                   <span aria-hidden="true" className="hidden md:block" />
                   <img
                     src={r.cover}

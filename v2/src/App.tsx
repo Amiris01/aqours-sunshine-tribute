@@ -13,6 +13,7 @@ import { Members } from './features/members/Members'
 import { SubUnits } from './features/subunits/SubUnits'
 import { Discography } from './features/music/Discography'
 import { Journey } from './features/journey/Journey'
+import { Rainbow } from './features/rainbow/Rainbow'
 import { NowPlayingAnnouncer } from './features/music/NowPlayingAnnouncer'
 
 // Split out of the entry chunk: the player (Radix Slider) until first play,
@@ -44,6 +45,7 @@ export default function App() {
           <SubUnits />
           <Discography />
           <Journey />
+          <Rainbow />
         </main>
         <Footer />
         <NowPlayingAnnouncer />
