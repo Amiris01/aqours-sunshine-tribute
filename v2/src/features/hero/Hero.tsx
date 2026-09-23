@@ -49,7 +49,13 @@ export function Hero() {
           </span>
         </div>
         <h1 className="mt-6">
-          <img src={asset('assets/logo/aqours-logo.png')} alt="Aqours" className="h-24 w-auto drop-shadow-[0_0_40px_rgba(63,214,255,0.35)] md:h-36" />
+          <img
+            src={asset('assets/logo/aqours-logo.webp')}
+            alt="Aqours"
+            width={900}
+            height={336}
+            fetchPriority="high"
+            className="h-24 w-auto drop-shadow-[0_0_40px_rgba(63,214,255,0.35)] md:h-36" />
         </h1>
         <p className="mt-6 max-w-2xl font-display text-3xl leading-tight md:text-5xl">{t('hero.tagline')}</p>
         <div className="mt-10 flex flex-wrap items-center gap-6">

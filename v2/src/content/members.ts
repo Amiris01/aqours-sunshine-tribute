@@ -106,7 +106,7 @@ type AssetKind = 'portrait' | 'emblem' | 'banner' | 'sign'
 export function memberAssetPath(m: Member, kind: AssetKind): string {
   const id = `${m.num}-${m.slug}`
   switch (kind) {
-    case 'portrait': return `assets/members/${id}.png`
+    case 'portrait': return `assets/members/${id}.webp`
     case 'emblem': return `assets/members/${id}-emblem.png`
     case 'banner': return `assets/banner/${id}.webp`
     case 'sign': return `assets/sign/${id}-sign.webp`

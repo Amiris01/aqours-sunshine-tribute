@@ -70,3 +70,9 @@ describe('timeline', () => {
     expect(timeline.at(-1)!.text.en).toContain('Belluna Dome')
   })
 })
+
+describe('performance assets', () => {
+  it('ships the hero logo as webp', () => {
+    expect(existsSync(resolve('public', 'assets/logo/aqours-logo.webp'))).toBe(true)
+  })
+})
