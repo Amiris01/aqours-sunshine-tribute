@@ -9,6 +9,7 @@ import { Player } from './features/music/Player'
 import { Hero } from './features/hero/Hero'
 import { About } from './features/about/About'
 import { Members } from './features/members/Members'
+import { SubUnits } from './features/subunits/SubUnits'
 
 export default function App() {
   const t = useT()
@@ -26,6 +27,7 @@ export default function App() {
         <Hero />
         <About />
         <Members />
+        <SubUnits />
       </main>
       <Footer />
       <Player />
