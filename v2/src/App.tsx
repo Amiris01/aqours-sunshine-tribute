@@ -7,6 +7,7 @@ import { TopBar } from './features/layout/TopBar'
 import { Footer } from './features/layout/Footer'
 import { Player } from './features/music/Player'
 import { Hero } from './features/hero/Hero'
+import { About } from './features/about/About'
 
 export default function App() {
   const t = useT()
@@ -22,6 +23,7 @@ export default function App() {
       <TopBar />
       <main id="top">
         <Hero />
+        <About />
       </main>
       <Footer />
       <Player />
