@@ -56,6 +56,7 @@ export const ja: Dict = {
 
   'subunits.h2': "3つのユニット",
   'subunits.lead': '9人全員に加え、Aqoursは3つのサブユニットに分かれます — それぞれが独自のサウンドとスタイルを持っています。',
+  'subunits.single': "ユニットシングル{n}",
   'subunit.tagline.CYaRon!': '明るく、元気いっぱい、海辺の陽光に満ちて。',
   'subunit.tagline.AZALEA': 'クールで、落ち着いていて、さりげなく優雅。',
   'subunit.tagline.Guilty Kiss': '大胆で、妖艶で、まぎれもなく印象的。',

@@ -55,6 +55,7 @@ export const en = {
 
   'subunits.h2': "Three units",
   'subunits.lead': 'Beyond the full nine, Aqours splits into three sub-units — each with its own sound and style.',
+  'subunits.single': "Unit Single {n}",
   'subunit.tagline.CYaRon!': 'Bright, energetic, and full of seaside sunshine.',
   'subunit.tagline.AZALEA': 'Cool, composed, and effortlessly elegant.',
   'subunit.tagline.Guilty Kiss': 'Bold, sultry, and unmistakably striking.',
