@@ -38,11 +38,12 @@ export function Discography() {
           {/* Vinyl + cover */}
           <div className="relative mx-auto aspect-square w-full max-w-md">
             <div
-              className={`absolute inset-[4%] left-[22%] rounded-full shadow-[0_0_80px_-10px_var(--accent)] ${spinning ? 'animate-spin-slow' : ''}`}
+              className={`absolute right-0 top-1/2 aspect-square w-[80%] -translate-y-1/2 rounded-full shadow-[0_0_80px_-10px_var(--accent)] ${spinning ? 'animate-spin-slow' : ''}`}
               style={{ background: 'repeating-radial-gradient(circle, #0b0b0f 0 2px, #16161d 2px 4px)' }}
               aria-hidden="true"
             >
-              <img src={r.cover} alt="" className="absolute inset-[33%] rounded-full object-cover" />
+              <img src={r.cover} alt="" className="absolute left-1/2 top-1/2 size-[34%] -translate-x-1/2 -translate-y-1/2 rounded-full object-cover" />
+              <span className="absolute left-1/2 top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sea-950" />
             </div>
             <AnimatePresence mode="wait">
               <motion.img

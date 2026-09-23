@@ -29,7 +29,7 @@ export function Hero() {
 
   return (
     <section ref={ref} id="hero" className="relative flex min-h-svh items-end overflow-hidden pb-20 pt-28">
-      <HeroFallback />
+      <HeroFallback sea={!show3d} />
       {show3d && (
         <Suspense fallback={null}>
           <SeaScene onFail={() => setFailed(true)} />
