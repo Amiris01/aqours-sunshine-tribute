@@ -86,12 +86,6 @@ export const en = {
   'disc.lead': "Eight Aqours songs, 2015 to 2024, in release order.",
   'np.onAir': "On air",
 
-  'about.whereLabel': "Where it began",
-  'about.where.school': "Uranohoshi Girls' High School",
-  'about.where.town': "Uchiura",
-  'about.where.city': "Numazu",
-  'about.where.pref': "Shizuoka",
-  'about.firstLive': "First live: Step! ZERO to ONE",
   'rainbow.h2': "Aqours Rainbow",
   'rainbow.caption': "At the Finale LoveLive! at Belluna Dome in June 2025, fans set their penlights to paint an Aqours Rainbow across the audience on both days.",
 

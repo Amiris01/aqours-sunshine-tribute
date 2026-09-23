@@ -87,12 +87,6 @@ export const ja: Dict = {
   'disc.lead': "2015年から2024年までのAqoursの8曲を、リリース順に。",
   'np.onAir': "ON AIR",
 
-  'about.whereLabel': "はじまりの場所",
-  'about.where.school': "浦の星女学院",
-  'about.where.town': "内浦",
-  'about.where.city': "沼津",
-  'about.where.pref': "静岡",
-  'about.firstLive': "1stライブ「Step! ZERO to ONE」",
   'rainbow.h2': "Aqours Rainbow",
   'rainbow.caption': "2025年6月、ベルーナドームでのFinale LoveLive!では、両日ともファンがペンライトで客席に「Aqours Rainbow」を描きました。",
 
