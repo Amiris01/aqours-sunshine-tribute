@@ -89,7 +89,11 @@ function webAudioConnect(stream: MediaStream): Connected {
   const source = ctx.createMediaStreamSource(new MediaStream(stream.getAudioTracks()))
   const analyser = ctx.createAnalyser()
   analyser.fftSize = 2048
-  analyser.smoothingTimeConstant = 0.72
+  // Narrower loudness window than the default (-100..-30 dB) so normal music fills the
+  // bars, and lighter smoothing so the bars react to hits quickly.
+  analyser.minDecibels = -85
+  analyser.maxDecibels = -22
+  analyser.smoothingTimeConstant = 0.55
   // Not connected to ctx.destination: the tab already plays the sound; this only listens.
   source.connect(analyser)
   return { analyser, close: () => void ctx.close() }

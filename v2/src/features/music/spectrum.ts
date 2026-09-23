@@ -1,3 +1,26 @@
+const GATE = 0.04 // below this is the noise floor, not music
+const TREBLE_BOOST = 0.9 // highs carry far less energy than lows; lift them up to 1.9x
+const TARGET = 0.85 // where the loudest band should sit once gain settles
+const MAX_GAIN = 3.5
+const RELEASE_PER_S = 0.35 // how fast the gain recovers after a loud passage
+
+/**
+ * Make live levels fill the strip: gate the noise floor, compensate the natural
+ * treble roll-off, then apply automatic gain so quiet songs or low volume still
+ * reach near the top. Gain only ever boosts; loud passages are never turned down.
+ */
+export function createAutoGain() {
+  let ref = 0.25
+  return (bands: number[], dt: number): number[] => {
+    const n = bands.length
+    const comp = bands.map((v, i) => (v < GATE ? 0 : v * (1 + (TREBLE_BOOST * i) / Math.max(1, n - 1))))
+    const peak = Math.max(...comp)
+    ref = peak > ref ? peak : Math.max(0.24, ref - dt * RELEASE_PER_S)
+    const gain = Math.min(MAX_GAIN, Math.max(1, TARGET / ref))
+    return comp.map((v) => Math.min(1, (v * gain) ** 0.85))
+  }
+}
+
 const LOW_HZ = 40
 const HIGH_HZ = 16000
 

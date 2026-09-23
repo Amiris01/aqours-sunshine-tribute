@@ -136,3 +136,11 @@ describe('Live spectrum button', () => {
     expect(await screen.findByText(/This tab/)).toBeInTheDocument()
   })
 })
+
+it('explains the share prompt while it is open: sound only, nothing recorded', async () => {
+  const { useLiveSpectrum } = await import('../../store/liveSpectrum')
+  useLiveSpectrum.setState({ supported: true, status: 'starting' })
+  render(<Player />)
+  usePlayer.getState().playAt(0)
+  expect(await screen.findByText(/nothing is recorded/)).toBeInTheDocument()
+})

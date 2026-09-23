@@ -91,6 +91,7 @@ export const en = {
   'rainbow.caption': "At the Finale LoveLive! at Belluna Dome in June 2025, fans set their penlights to paint an Aqours Rainbow across the audience on both days.",
 
   'np.live': "Live spectrum",
+  'np.liveStarting': "In the prompt, choose “This tab” and keep “Share tab audio” on. Only the sound is used; nothing is recorded or sent.",
   'np.liveHelp': "To see the real spectrum, choose “This tab” and keep “Share tab audio” on.",
   'np.liveNoAudio': "No sound was shared. Choose “This tab” and keep “Share tab audio” on.",
   'np.liveError': "Couldn't start the live spectrum; showing the standard one.",

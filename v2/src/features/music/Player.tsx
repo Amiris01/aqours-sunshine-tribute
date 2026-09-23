@@ -118,13 +118,15 @@ export function Player() {
                 analyser={liveSpectrum.analyser}
               />
             </div>
-            {['denied', 'noaudio', 'error'].includes(liveSpectrum.status) && (
+            {['starting', 'denied', 'noaudio', 'error'].includes(liveSpectrum.status) && (
               <p role="status" className="mx-auto max-w-6xl px-4 pt-2 text-sm text-haze">
-                {liveSpectrum.status === 'denied'
-                  ? t('np.liveHelp')
-                  : liveSpectrum.status === 'noaudio'
-                    ? t('np.liveNoAudio')
-                    : t('np.liveError')}
+                {liveSpectrum.status === 'starting'
+                  ? t('np.liveStarting')
+                  : liveSpectrum.status === 'denied'
+                    ? t('np.liveHelp')
+                    : liveSpectrum.status === 'noaudio'
+                      ? t('np.liveNoAudio')
+                      : t('np.liveError')}
               </p>
             )}
             <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 md:flex-nowrap">

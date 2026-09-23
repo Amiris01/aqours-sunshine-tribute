@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { prefersReducedMotion } from '../../lib/motionPref'
 import type { Status } from '../../store/player'
 import { beatPulse } from './beat'
-import { toBands } from './spectrum'
+import { createAutoGain, toBands } from './spectrum'
 
 /**
  * The penlight spectrum along the top of the player: frequency bands from bass
@@ -124,6 +124,7 @@ export function Visualizer({ color, status, seed, progress, position = 0, bpm, b
     ro.observe(canvas)
 
     const target: number[] = Array.from({ length: BANDS }, () => REST)
+    const autoGain = createAutoGain()
     let fft: Uint8Array<ArrayBuffer> | null = null
     let t = 0
     let last = performance.now()
@@ -168,7 +169,7 @@ export function Visualizer({ color, status, seed, progress, position = 0, bpm, b
           const a = S.analyser
           if (!fft || fft.length !== a.frequencyBinCount) fft = new Uint8Array(a.frequencyBinCount)
           a.getByteFrequencyData(fft)
-          const bands = toBands(fft, BANDS, a.context.sampleRate, a.fftSize)
+          const bands = autoGain(toBands(fft, BANDS, a.context.sampleRate, a.fftSize), dt)
           for (let i = 0; i < BANDS; i++) target[i] = Math.max(REST, bands[i]!)
         } else if (S.state === 'playing') {
           const est = S.position + (now - S.positionAt) / 1000
@@ -181,7 +182,7 @@ export function Visualizer({ color, status, seed, progress, position = 0, bpm, b
           const cur = heights.current[i]!
           const goal = target[i]!
           // Snap up to hits, fall back more slowly (live data is already smoothed).
-          const rate = liveData ? 24 : goal > cur ? 26 : 8
+          const rate = liveData ? (goal > cur ? 40 : 14) : goal > cur ? 26 : 8
           const next = cur + (goal - cur) * Math.min(1, dt * rate)
           heights.current[i] = next
           const pk = peaks.current[i]!
