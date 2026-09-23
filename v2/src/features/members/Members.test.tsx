@@ -10,12 +10,13 @@ beforeEach(() => {
   useMemberView.setState({ opener: null })
 })
 
-it('renders nine member cards in display order', () => {
+it('renders nine member tickets in official order', () => {
   render(<Members />)
   const cards = screen.getAllByRole('button', { name: /^Open / })
   expect(cards).toHaveLength(9)
   expect(cards[0]).toHaveAccessibleName('Open Chika Takami')
-  expect(cards[1]).toHaveAccessibleName('Open You Watanabe')
+  expect(cards[1]).toHaveAccessibleName('Open Riko Sakurauchi')
+  expect(cards[8]).toHaveAccessibleName('Open Ruby Kurosawa')
 })
 
 it('opens a member, shows verified profile, navigates, and returns focus on close', async () => {
@@ -28,12 +29,12 @@ it('opens a member, shows verified profile, navigates, and returns focus on clos
   expect(dialog).toHaveTextContent('157 cm')
 
   await user.keyboard('{ArrowRight}')
-  expect(within(screen.getByRole('dialog')).getByRole('heading', { name: 'You Watanabe' })).toBeInTheDocument()
-  expect(screen.getByRole('dialog')).toHaveTextContent('AB')
+  expect(within(screen.getByRole('dialog')).getByRole('heading', { name: 'Riko Sakurauchi' })).toBeInTheDocument()
+  expect(screen.getByRole('dialog')).toHaveTextContent('160 cm')
 
   await user.keyboard('{Escape}')
   await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
-  await waitFor(() => expect(screen.getByRole('button', { name: 'Open You Watanabe' })).toHaveFocus())
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Open Riko Sakurauchi' })).toHaveFocus())
 })
 
 it('switches language while open without closing', async () => {

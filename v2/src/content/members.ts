@@ -92,7 +92,8 @@ const RAW: Member[] = [
   },
 ]
 
-export const DISPLAY_ORDER = ['01', '05', '02', '09', '07', '06', '04', '03', '08'] as const
+// Official Aqours order (as on lovelive-anime.jp): each member's number is her position.
+export const DISPLAY_ORDER = ['01', '02', '03', '04', '05', '06', '07', '08', '09'] as const
 
 export const members: Member[] = DISPLAY_ORDER.map((num) => {
   const m = RAW.find((x) => x.num === num)

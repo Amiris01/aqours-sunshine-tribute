@@ -8,8 +8,8 @@ import { timeline } from './timeline'
 const HEX = /^#[0-9A-Fa-f]{6}$/
 
 describe('members', () => {
-  it('has nine unique members in display order', () => {
-    expect(members.map((m) => m.num)).toEqual(['01', '05', '02', '09', '07', '06', '04', '03', '08'])
+  it('lists the nine in official order, No.01–No.09', () => {
+    expect(members.map((m) => m.num)).toEqual(['01', '02', '03', '04', '05', '06', '07', '08', '09'])
   })
   it('uses verified profile data', () => {
     const by = Object.fromEntries(members.map((m) => [m.slug, m]))
