@@ -5,6 +5,7 @@ import { asset } from '../../lib/asset'
 import { hasWebGL } from '../../lib/webgl'
 import { usePlayer } from '../../store/player'
 import { HeroFallback } from './HeroFallback'
+import { ErrorBoundary } from '../../lib/ErrorBoundary'
 
 const SeaScene = lazy(() => import('./SeaScene'))
 
@@ -31,9 +32,11 @@ export function Hero() {
     <section ref={ref} id="hero" className="relative flex min-h-svh items-end overflow-hidden pb-20 pt-28">
       <HeroFallback sea={!show3d} />
       {show3d && (
-        <Suspense fallback={null}>
-          <SeaScene onFail={() => setFailed(true)} />
-        </Suspense>
+        <ErrorBoundary fallback={null} onError={() => setFailed(true)}>
+          <Suspense fallback={null}>
+            <SeaScene onFail={() => setFailed(true)} />
+          </Suspense>
+        </ErrorBoundary>
       )}
       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-sea-950 to-transparent" aria-hidden="true" />
       <motion.div

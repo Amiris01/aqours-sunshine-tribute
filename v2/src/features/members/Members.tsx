@@ -2,6 +2,7 @@ import { lazy, Suspense, useRef, useState } from 'react'
 import { members } from '../../content/members'
 import { useT } from '../../i18n'
 import { MemberCard } from './MemberCard'
+import { ErrorBoundary } from '../../lib/ErrorBoundary'
 
 // Radix Dialog + the view only load once a member is first opened.
 const MemberView = lazy(() => import('./MemberView').then((mod) => ({ default: mod.MemberView })))
@@ -33,14 +34,16 @@ export function Members() {
         ))}
       </ul>
       {everOpened.current && (
-        <Suspense fallback={null}>
-          <MemberView
-            num={openNum}
-            onNavigate={setOpenNum}
-            onClose={() => setOpenNum(null)}
-            returnFocus={(num) => cardRefs.current.get(num)?.focus()}
-          />
-        </Suspense>
+        <ErrorBoundary fallback={null}>
+          <Suspense fallback={null}>
+            <MemberView
+              num={openNum}
+              onNavigate={setOpenNum}
+              onClose={() => setOpenNum(null)}
+              returnFocus={(num) => cardRefs.current.get(num)?.focus()}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
     </section>
   )

@@ -41,3 +41,9 @@ it('switches language while open without closing', async () => {
   expect(screen.getByRole('dialog')).toHaveTextContent('8月1日')
   expect(within(screen.getByRole('dialog')).getByRole('heading', { name: 'Chika Takami' })).toBeInTheDocument()
 })
+
+it('lets the member view scroll itself instead of the page behind (Lenis)', async () => {
+  render(<Members />)
+  await userEvent.click(screen.getByRole('button', { name: 'Open Chika Takami' }))
+  expect(await screen.findByRole('dialog')).toHaveAttribute('data-lenis-prevent')
+})

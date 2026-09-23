@@ -68,7 +68,7 @@ export function Discography() {
             <p lang="ja" className="mt-2 text-mist">{r.titleJp}</p>
             <button
               type="button"
-              onClick={() => (isCurrent ? usePlayer.getState().toggle() : usePlayer.getState().playAt(sel))}
+              onClick={() => (isCurrent && status !== 'error' ? usePlayer.getState().toggle() : usePlayer.getState().playAt(sel))}
               className="mt-8 inline-flex items-center gap-3 rounded-full bg-[var(--accent)] px-6 py-3 font-semibold text-sea-950 transition hover:brightness-110"
             >
               <span aria-hidden="true">{spinning ? '❚❚' : '▶'}</span>

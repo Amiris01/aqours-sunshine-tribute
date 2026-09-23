@@ -3,6 +3,7 @@ import { LazyMotion, MotionConfig } from 'motion/react'
 import { useT } from './i18n'
 import { useLang } from './store/lang'
 import { usePlayer } from './store/player'
+import { ErrorBoundary } from './lib/ErrorBoundary'
 import { SmoothScroll } from './features/layout/SmoothScroll'
 import { TopBar } from './features/layout/TopBar'
 import { Footer } from './features/layout/Footer'
@@ -45,9 +46,11 @@ export default function App() {
         </main>
         <Footer />
         {playerMounted.current && (
-          <Suspense fallback={null}>
-            <Player />
-          </Suspense>
+          <ErrorBoundary fallback={null}>
+            <Suspense fallback={null}>
+              <Player />
+            </Suspense>
+          </ErrorBoundary>
         )}
         <div className="grain" aria-hidden="true" />
       </MotionConfig>

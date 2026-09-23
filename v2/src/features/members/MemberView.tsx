@@ -45,6 +45,7 @@ export function MemberView({ num, onNavigate, onClose, returnFocus }: Props) {
             <Dialog.Content
               forceMount
               aria-describedby={undefined}
+              data-lenis-prevent
               onKeyDown={(e) => {
                 if (e.key === 'ArrowRight') { e.preventDefault(); go(1) }
                 if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1) }

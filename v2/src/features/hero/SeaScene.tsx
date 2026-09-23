@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { members } from '../../content/members'
 
@@ -103,6 +103,15 @@ function MemberLights() {
 }
 
 export default function SeaScene({ onFail }: { onFail: () => void }) {
+  // R3F force-loses the WebGL context when the canvas unmounts (e.g. scrolling the
+  // hero out of view). Only a context loss while mounted is a real failure.
+  const mounted = useRef(true)
+  useEffect(() => {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+    }
+  }, [])
   return (
     <div className="absolute inset-0" aria-hidden="true">
       <Canvas
@@ -113,7 +122,7 @@ export default function SeaScene({ onFail }: { onFail: () => void }) {
           gl.setClearColor(0x000000, 0)
           gl.domElement.addEventListener('webglcontextlost', (e) => {
             e.preventDefault()
-            onFail()
+            if (mounted.current) onFail()
           })
         }}
       >

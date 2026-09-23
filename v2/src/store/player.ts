@@ -27,6 +27,8 @@ export interface PlayerState {
   duration: number
   minimized: boolean
   engine: Engine | null
+  /** Spotify couldn't be reached; stays set until retry() or an engine attaches. */
+  engineFailed: boolean
   playAt(i: number): void
   toggle(): void
   next(): void
@@ -35,6 +37,7 @@ export interface PlayerState {
   close(): void
   attachEngine(engine: Engine): void
   fail(): void
+  retry(): void
   report(p: Progress): void
   ended(): void
   setMinimized(v: boolean): void
@@ -56,9 +59,12 @@ export const createPlayerStore = (queue: Release[] = releases) =>
       duration: 0,
       minimized: false,
       engine: null,
+      engineFailed: false,
       playAt(i) {
         if (i < 0 || i >= get().queue.length) return
-        set({ index: i, status: 'loading', position: 0, duration: 0, minimized: false })
+        // Without a working engine, keep showing the fallback (Open in Spotify + Retry).
+        const status: Status = !get().engine && get().engineFailed ? 'error' : 'loading'
+        set({ index: i, status, position: 0, duration: 0, minimized: false })
         loadCurrent()
       },
       toggle() {
@@ -86,11 +92,15 @@ export const createPlayerStore = (queue: Release[] = releases) =>
         set({ index: -1, status: 'idle', position: 0, duration: 0, minimized: false })
       },
       attachEngine(engine) {
-        set({ engine })
+        set({ engine, engineFailed: false })
         if (get().index >= 0) loadCurrent()
       },
       fail() {
-        set({ status: 'error' })
+        set({ engineFailed: true })
+        if (get().index >= 0) set({ status: 'error' })
+      },
+      retry() {
+        set({ engineFailed: false, status: get().index >= 0 ? 'loading' : 'idle' })
       },
       report({ position, duration, paused, buffering }) {
         if (get().index < 0) return

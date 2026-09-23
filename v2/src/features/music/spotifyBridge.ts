@@ -74,15 +74,33 @@ export function loadSpotifyApi(timeoutMs = 10_000): Promise<SpotifyIFrameAPI> {
 }
 
 const END_SLACK_S = 0.4
+/** An update this far before the end proves the (new) track is actually playing. */
+const ARM_MARGIN_S = 2
 
-export function createSpotifyEngine(api: SpotifyIFrameAPI, host: HTMLElement, sink: PlayerSink, initialUri: string) {
+export function createSpotifyEngine(
+  api: SpotifyIFrameAPI,
+  host: HTMLElement,
+  sink: PlayerSink,
+  initialUri: string,
+  readyTimeoutMs = 15_000,
+) {
+  let ready = false
+  let failed = false
+  // The iframe can be blocked (extension, frame-src, network) after the script loaded.
+  const readyTimer = window.setTimeout(() => {
+    if (ready) return
+    failed = true
+    sink.fail()
+  }, readyTimeoutMs)
+
   api.createController(host, { uri: initialUri, width: '100%', height: 80 }, (c) => {
-    let current = initialUri
-    let advancedFor: string | null = null
+    // Auto-advance fires once per track: disarmed on every load, re-armed only by an
+    // update from mid-track. Stale end-of-track updates from the previous track that
+    // arrive after a load (Spotify queues several) can therefore never cascade.
+    let armed = false
     const engine: Engine = {
       load(uri) {
-        current = uri
-        advancedFor = null
+        armed = false
         c.loadUri(uri)
         c.play()
       },
@@ -90,15 +108,24 @@ export function createSpotifyEngine(api: SpotifyIFrameAPI, host: HTMLElement, si
       seek: (s) => c.seek(s),
       pause: () => c.pause(),
     }
-    c.addListener('ready', () => sink.attachEngine(engine))
+    c.addListener('ready', () => {
+      if (failed) return // too late: the player already shows the fallback
+      ready = true
+      window.clearTimeout(readyTimer)
+      sink.attachEngine(engine)
+    })
     c.addListener('playback_update', (e) => {
       const d = e.data ?? {}
       const position = (d.position ?? 0) / 1000
       const duration = (d.duration ?? 0) / 1000
       sink.report({ position, duration, paused: Boolean(d.isPaused), buffering: Boolean(d.isBuffering) })
-      // Spotify emits several updates near the end; advance once per track.
-      if (duration > 0 && position >= duration - END_SLACK_S && advancedFor !== current) {
-        advancedFor = current
+      if (duration <= 0) return
+      if (!armed) {
+        if (position < duration - ARM_MARGIN_S) armed = true
+        return
+      }
+      if (position >= duration - END_SLACK_S) {
+        armed = false
         sink.ended()
       }
     })

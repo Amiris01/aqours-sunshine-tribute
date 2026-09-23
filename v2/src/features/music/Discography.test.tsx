@@ -38,3 +38,12 @@ it('plays the selected release', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Play' }))
   expect(usePlayer.getState().index).toBe(releases.findIndex((r) => r.year === 2024))
 })
+
+it('re-shows the player fallback when Play is pressed on the current release after a failure', async () => {
+  render(<Discography />)
+  usePlayer.getState().playAt(0)
+  usePlayer.getState().fail()
+  usePlayer.getState().setMinimized(true)
+  await userEvent.click(screen.getByRole('button', { name: 'Play' }))
+  expect(usePlayer.getState()).toMatchObject({ index: 0, status: 'error', minimized: false })
+})

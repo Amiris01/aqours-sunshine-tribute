@@ -18,16 +18,20 @@ export function Player() {
       position: s.position, duration: s.duration, minimized: s.minimized,
     })),
   )
-  const hostRef = useRef<HTMLDivElement>(null)
+  // Spotify replaces its host element with an iframe, so React only owns the container
+  // and every (re)start gets a brand-new host div.
+  const containerRef = useRef<HTMLDivElement>(null)
   const startedRef = useRef(false)
   const [drag, setDrag] = useState<number | null>(null)
 
   const start = useCallback(() => {
-    const host = hostRef.current
+    const container = containerRef.current
     const first = queue[Math.max(usePlayer.getState().index, 0)]
     const uri = first && spotifyUri(first.spotify)
-    if (!host || !uri) return
+    if (!container || !uri) return
     startedRef.current = true
+    const host = document.createElement('div')
+    container.replaceChildren(host)
     void startSpotify(host, usePlayer.getState(), uri)
   }, [queue])
 
@@ -37,7 +41,7 @@ export function Player() {
   }, [index, start])
 
   const retry = () => {
-    usePlayer.setState({ status: 'loading' })
+    usePlayer.getState().retry()
     start()
   }
 
@@ -49,7 +53,7 @@ export function Player() {
     <>
       {/* Spotify iframe host: in-flow, zero height (a 1px/opacity-0 iframe breaks playback). */}
       <div className="pointer-events-none h-0 overflow-hidden" aria-hidden="true">
-        <div ref={hostRef} />
+        <div ref={containerRef} />
       </div>
       <div role="status" aria-live="polite" className="sr-only">
         {track ? `${t('np.nowPlaying')}: ${track.title}` : ''}
@@ -129,6 +133,16 @@ export function Player() {
               )}
 
               <div className="ml-auto flex items-center">
+                {status !== 'error' && openUrl && (
+                  <a
+                    href={openUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mr-1 inline-block whitespace-nowrap rounded-full border border-white/15 px-3 py-1.5 text-xs text-mist transition hover:text-ink"
+                  >
+                    {t('np.openSpotify')}
+                  </a>
+                )}
                 <button type="button" className={btn} onClick={() => usePlayer.getState().setMinimized(true)} aria-label={t('np.minimize')}>▾</button>
                 <button type="button" className={btn} onClick={() => usePlayer.getState().close()} aria-label={t('np.close')}>✕</button>
               </div>

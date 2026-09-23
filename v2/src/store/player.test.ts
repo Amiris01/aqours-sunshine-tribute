@@ -85,6 +85,37 @@ it('toggle starts the queue when closed, and delegates when open', () => {
   expect(engine.toggle).toHaveBeenCalledTimes(1)
 })
 
+it('keeps the error fallback when another track is played after Spotify failed', () => {
+  const store = createPlayerStore(queue)
+  store.getState().playAt(0)
+  store.getState().fail()
+  store.getState().playAt(2)
+  expect(store.getState()).toMatchObject({ index: 2, status: 'error' })
+  store.getState().close()
+  store.getState().playAt(1)
+  expect(store.getState().status).toBe('error')
+})
+
+it('ignores a late failure after the player was closed, but remembers it', () => {
+  const store = createPlayerStore(queue)
+  store.getState().playAt(0)
+  store.getState().close()
+  store.getState().fail()
+  expect(store.getState().status).toBe('idle')
+  store.getState().playAt(0)
+  expect(store.getState().status).toBe('error')
+})
+
+it('retry clears the failure and an attached engine clears it too', () => {
+  const store = createPlayerStore(queue)
+  store.getState().playAt(0)
+  store.getState().fail()
+  store.getState().retry()
+  expect(store.getState().status).toBe('loading')
+  store.getState().playAt(1)
+  expect(store.getState().status).toBe('loading')
+})
+
 it('seek updates position and calls the engine', () => {
   const store = createPlayerStore(queue)
   const engine = fakeEngine()

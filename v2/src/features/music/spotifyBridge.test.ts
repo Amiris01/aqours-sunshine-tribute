@@ -53,14 +53,54 @@ it('fires ended exactly once per track even with repeated end updates', () => {
   const s = sink()
   createSpotifyEngine(api, document.createElement('div'), s, 'spotify:track:A')
   emit('ready')
+  const mid = { position: 30000, duration: 90000, isPaused: false }
   const end = { position: 89800, duration: 90000, isPaused: false }
+  emit('playback_update', mid)
   emit('playback_update', end)
   emit('playback_update', end)
   emit('playback_update', end)
   expect(s.ended).toHaveBeenCalledTimes(1)
   vi.mocked(s.attachEngine).mock.calls[0]![0].load('spotify:track:B')
-  emit('playback_update', end)
+  emit('playback_update', { position: 1000, duration: 120000, isPaused: false })
+  emit('playback_update', { position: 119800, duration: 120000, isPaused: false })
   expect(s.ended).toHaveBeenCalledTimes(2)
+})
+
+it('does not cascade when the next track loads inside ended and stale end updates follow', () => {
+  const { api, emit } = fakeApi()
+  const s = sink()
+  vi.mocked(s.attachEngine).mockImplementation((engine) => {
+    vi.mocked(s.ended).mockImplementation(() => engine.load('spotify:track:NEXT'))
+  })
+  createSpotifyEngine(api, document.createElement('div'), s, 'spotify:track:A')
+  emit('ready')
+  emit('playback_update', { position: 30000, duration: 90000, isPaused: false })
+  const staleEnd = { position: 89800, duration: 90000, isPaused: false }
+  emit('playback_update', staleEnd)
+  emit('playback_update', staleEnd)
+  emit('playback_update', staleEnd)
+  expect(s.ended).toHaveBeenCalledTimes(1)
+})
+
+it('fails when the embed never becomes ready', () => {
+  vi.useFakeTimers()
+  try {
+    const { api, emit } = fakeApi()
+    const s = sink()
+    createSpotifyEngine(api, document.createElement('div'), s, 'spotify:track:A', 5000)
+    vi.advanceTimersByTime(5000)
+    expect(s.fail).toHaveBeenCalledTimes(1)
+    emit('ready')
+    expect(s.attachEngine).not.toHaveBeenCalled() // a late ready after failing is ignored
+    const ok = sink()
+    const second = fakeApi()
+    createSpotifyEngine(second.api, document.createElement('div'), ok, 'spotify:track:A', 5000)
+    second.emit('ready')
+    vi.advanceTimersByTime(5000)
+    expect(ok.fail).not.toHaveBeenCalled()
+  } finally {
+    vi.useRealTimers()
+  }
 })
 
 describe('loadSpotifyApi', () => {
