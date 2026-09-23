@@ -100,3 +100,10 @@ it('keeps the Spotify embed host in the viewport with real size (a zero-size/off
   expect(host.style.pointerEvents).toBe('none')
   expect(host.style.left).not.toMatch(/^-/)
 })
+
+it('crowns the docked player with the penlight equaliser', async () => {
+  render(<Player />)
+  usePlayer.getState().playAt(1)
+  const region = await screen.findByRole('region', { name: 'Music player' })
+  expect(within(region).getByTestId('visualizer')).toHaveAttribute('data-state', 'loading')
+})

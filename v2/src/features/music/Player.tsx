@@ -9,6 +9,7 @@ import { fmtTime } from '../../lib/format'
 import { onColor } from '../../lib/color'
 import { CloseIcon, MinimizeIcon, NextIcon, PauseIcon, PlayIcon, PrevIcon } from '../../lib/icons'
 import { startSpotify } from './spotifyBridge'
+import { Visualizer } from './Visualizer'
 
 const btn = 'grid size-10 place-items-center rounded-[3px] text-ink transition hover:bg-line disabled:opacity-40'
 
@@ -96,8 +97,12 @@ export function Player() {
             exit={{ y: 120 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             style={{ '--accent': track.accent } as CSSProperties}
-            className="fixed inset-x-0 bottom-0 z-40 border-t-4 border-[var(--accent)] bg-deep"
+            className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-[var(--accent)] bg-deep"
           >
+            {/* Penlight equaliser rising from the top edge (state-driven; see Visualizer). */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-full h-9">
+              <Visualizer color={track.accent} status={status} seed={track.id} progress={duration ? position / duration : 0} />
+            </div>
             <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 md:flex-nowrap">
               <img src={track.cover} alt="" className="size-12 shrink-0 rounded-[3px]" />
               <div className="min-w-0 flex-1 md:w-56 md:flex-none">

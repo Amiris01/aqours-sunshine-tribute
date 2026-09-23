@@ -40,11 +40,21 @@ export function TopBar() {
               aria-label={`${t('np.expand')}: ${track.title}`}
               className="flex max-w-40 items-center gap-2 rounded-[3px] border border-line px-3 py-1.5 text-sm hover:border-ink sm:max-w-60"
             >
+              {/* Tiny three-bar equaliser: moves while playing, rests when paused. */}
               <span
+                data-testid="pill-eq"
+                data-playing={playing ? 'true' : 'false'}
                 aria-hidden="true"
-                className={`size-2 shrink-0 rounded-full ${playing ? 'motion-safe:animate-pulse' : 'opacity-50'}`}
-                style={{ background: accent }}
-              />
+                className="flex h-3 shrink-0 items-end gap-[2px]"
+              >
+                {[0, 0.2, 0.4].map((d) => (
+                  <span
+                    key={d}
+                    className={`block h-full w-[3px] origin-bottom ${playing ? 'eq-bar' : 'scale-y-40 opacity-60'}`}
+                    style={{ background: accent, animationDelay: `${-d}s` }}
+                  />
+                ))}
+              </span>
               <span className="truncate">{track.title}</span>
             </button>
           )}
