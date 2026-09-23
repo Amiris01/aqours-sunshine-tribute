@@ -1,13 +1,17 @@
-import { useRef, useState } from 'react'
+import { lazy, Suspense, useRef, useState } from 'react'
 import { members } from '../../content/members'
 import { useT } from '../../i18n'
 import { MemberCard } from './MemberCard'
-import { MemberView } from './MemberView'
+
+// Radix Dialog + the view only load once a member is first opened.
+const MemberView = lazy(() => import('./MemberView').then((mod) => ({ default: mod.MemberView })))
 
 export function Members() {
   const t = useT()
   const [openNum, setOpenNum] = useState<string | null>(null)
   const cardRefs = useRef(new Map<string, HTMLButtonElement>())
+  const everOpened = useRef(false)
+  if (openNum) everOpened.current = true
 
   return (
     <section id="members" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-28">
@@ -28,12 +32,16 @@ export function Members() {
           </li>
         ))}
       </ul>
-      <MemberView
-        num={openNum}
-        onNavigate={setOpenNum}
-        onClose={() => setOpenNum(null)}
-        returnFocus={(num) => cardRefs.current.get(num)?.focus()}
-      />
+      {everOpened.current && (
+        <Suspense fallback={null}>
+          <MemberView
+            num={openNum}
+            onNavigate={setOpenNum}
+            onClose={() => setOpenNum(null)}
+            returnFocus={(num) => cardRefs.current.get(num)?.focus()}
+          />
+        </Suspense>
+      )}
     </section>
   )
 }

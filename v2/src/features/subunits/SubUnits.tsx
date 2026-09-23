@@ -1,4 +1,4 @@
-import { motion } from 'motion/react'
+import { m as motion } from 'motion/react'
 import { subunits } from '../../content/subunits'
 import { memberAssets } from '../../content/members'
 import { asset } from '../../lib/asset'

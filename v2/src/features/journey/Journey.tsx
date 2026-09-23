@@ -1,4 +1,4 @@
-import { motion } from 'motion/react'
+import { m as motion } from 'motion/react'
 import { timeline } from '../../content/timeline'
 import { pick } from '../../content/types'
 import { useT } from '../../i18n'

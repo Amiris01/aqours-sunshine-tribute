@@ -1,5 +1,5 @@
 import { useRef, useState, type CSSProperties } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, m as motion } from 'motion/react'
 import { useShallow } from 'zustand/react/shallow'
 import { releases } from '../../content/discography'
 import { pick } from '../../content/types'

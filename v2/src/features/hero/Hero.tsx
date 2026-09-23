@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
-import { motion, useReducedMotion } from 'motion/react'
+import { m as motion, useReducedMotion } from 'motion/react'
 import { useT } from '../../i18n'
 import { asset } from '../../lib/asset'
 import { hasWebGL } from '../../lib/webgl'

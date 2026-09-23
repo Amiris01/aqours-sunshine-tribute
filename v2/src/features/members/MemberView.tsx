@@ -1,6 +1,6 @@
 import { useRef, type CSSProperties } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, m as motion } from 'motion/react'
 import { members, memberAssets } from '../../content/members'
 import { pick } from '../../content/types'
 import { formatBirthday } from '../../lib/format'

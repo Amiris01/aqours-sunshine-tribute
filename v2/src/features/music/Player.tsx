@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, m as motion } from 'motion/react'
 import * as Slider from '@radix-ui/react-slider'
 import { useShallow } from 'zustand/react/shallow'
 import { usePlayer } from '../../store/player'
