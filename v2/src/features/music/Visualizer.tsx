@@ -1,14 +1,15 @@
 import { useEffect, useRef } from 'react'
 import { prefersReducedMotion } from '../../lib/motionPref'
 import type { Status } from '../../store/player'
+import { beatPulse } from './beat'
 
 /**
  * The "penlight equaliser" along the top of the player.
  *
- * The audio plays inside Spotify's cross-origin embed, so the page cannot read it:
- * this is driven by playback state, not audio analysis. Bars wave while playing
- * (a per-song pattern that builds slightly through the track), ease down to rest
- * when paused, and a glow sweeps across while loading. Decorative only.
+ * The audio plays inside Spotify's cross-origin embed, so the page cannot read it.
+ * When a song's tempo is known, bars pulse on its actual beats (bigger on each
+ * downbeat), timed from Spotify's reported playback position; otherwise they wave in
+ * a per-song pattern. They ease to rest when paused and sweep while loading.
  */
 
 const BARS = 48
@@ -41,18 +42,31 @@ interface Props {
   seed: string
   /** 0..1 through the current track. */
   progress: number
+  /** Playback position in seconds, as last reported by Spotify. */
+  position?: number
+  /** Song tempo; enables beat-synced pulses. */
+  bpm?: number
+  /** Seconds before the first beat. */
+  beatOffset?: number
 }
 
-export function Visualizer({ color, status, seed, progress }: Props) {
+export function Visualizer({ color, status, seed, progress, position = 0, bpm, beatOffset = 0 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const reduced = prefersReducedMotion()
   const state = stateFor(status, reduced)
 
   // Live values read by the animation loop without restarting it.
-  const live = useRef({ state, color, progress, phases: seedPhases(seed) })
+  const live = useRef({ state, color, progress, phases: seedPhases(seed), position, positionAt: 0, bpm, beatOffset })
   live.current.state = state
   live.current.color = color
   live.current.progress = progress
+  live.current.bpm = bpm
+  live.current.beatOffset = beatOffset
+  // Spotify reports position every so often; remember when, to extrapolate between reports.
+  if (live.current.position !== position) {
+    live.current.position = position
+    live.current.positionAt = performance.now()
+  }
   useEffect(() => {
     live.current.phases = seedPhases(seed)
   }, [seed])
@@ -103,9 +117,25 @@ export function Visualizer({ color, status, seed, progress }: Props) {
       const dt = Math.min((now - last) / 1000, 0.05)
       last = now
       t += dt
-      const { state: s, progress: p, phases } = live.current
+      const { state: s, progress: p, phases, bpm: tempo } = live.current
       let settled = true
-      if (s === 'playing' || s === 'resting') {
+      if (s === 'playing' && tempo) {
+        // Beat mode: estimate where playback is right now, then pulse on the beat.
+        const est = live.current.position + (now - live.current.positionAt) / 1000
+        const { pulse, downbeat } = beatPulse(est, tempo, live.current.beatOffset)
+        const accent = downbeat ? 1.2 : 0.85
+        for (let i = 0; i < BARS; i++) {
+          const ph = phases[i]!
+          const shape = 0.45 + 0.55 * Math.abs(Math.sin(ph))
+          const drift = 0.06 * Math.sin(t * 2.4 + ph)
+          const target = Math.min(1, REST + 0.08 + drift + pulse * accent * shape * 0.8)
+          const cur = heights.current[i]!
+          // Snap up on the beat, fall back more slowly.
+          const rate = target > cur ? 30 : 9
+          heights.current[i] = cur + (target - cur) * Math.min(1, dt * rate)
+        }
+        settled = false
+      } else if (s === 'playing' || s === 'resting') {
         // Energy builds a little through the track.
         const energy = 0.55 + 0.35 * Math.min(1, Math.max(0, p))
         const speed = 2.2 + p * 1.2
@@ -156,6 +186,7 @@ export function Visualizer({ color, status, seed, progress }: Props) {
       ref={canvasRef}
       data-testid="visualizer"
       data-state={state}
+      data-mode={bpm ? 'beat' : 'wave'}
       data-color={color}
       aria-hidden="true"
       className="block h-full w-full"

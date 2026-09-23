@@ -101,7 +101,15 @@ export function Player() {
           >
             {/* Penlight equaliser rising from the top edge (state-driven; see Visualizer). */}
             <div className="pointer-events-none absolute inset-x-0 bottom-full h-9">
-              <Visualizer color={track.accent} status={status} seed={track.id} progress={duration ? position / duration : 0} />
+              <Visualizer
+                color={track.accent}
+                status={status}
+                seed={track.id}
+                progress={duration ? position / duration : 0}
+                position={position}
+                bpm={track.bpm}
+                beatOffset={track.beatOffset}
+              />
             </div>
             <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 md:flex-nowrap">
               <img src={track.cover} alt="" className="size-12 shrink-0 rounded-[3px]" />

@@ -14,11 +14,15 @@ export interface Release {
   accent: string
   /** One or two verified facts about the release. */
   blurb: Localized
+  /** Tempo, from ongakumichi523.jp BPM measurements; drives the beat-synced visualizer. */
+  bpm?: number
+  /** Seconds before the first beat, if the track does not start on one. */
+  beatOffset?: number
 }
 
 export const releases: Release[] = [
   {
-    id: 'kimi-no-kokoro', year: 2015, date: '2015-10-07',
+    id: 'kimi-no-kokoro', year: 2015, date: '2015-10-07', bpm: 182,
     title: 'Kimi no Kokoro wa Kagayaiteru kai?', titleJp: '君のこころは輝いてるかい？',
     kind: { en: 'Debut single', ja: 'デビューシングル' },
     spotify: 'https://open.spotify.com/embed/album/32Tz0vbR5XjgoIaRjgbIeN',
@@ -30,7 +34,7 @@ export const releases: Release[] = [
     },
   },
   {
-    id: 'aozora-jumping-heart', year: 2016, date: '2016-07-20',
+    id: 'aozora-jumping-heart', year: 2016, date: '2016-07-20', bpm: 200,
     title: 'Aozora Jumping Heart', titleJp: '青空Jumping Heart',
     kind: { en: 'TV anime season 1 opening', ja: 'TVアニメ第1期オープニング' },
     spotify: 'https://open.spotify.com/embed/track/3qDPN5KBpu63ieMoommmVm',
@@ -42,7 +46,7 @@ export const releases: Release[] = [
     },
   },
   {
-    id: 'yume-kataru', year: 2016, date: '2016-08-24',
+    id: 'yume-kataru', year: 2016, date: '2016-08-24', bpm: 159,
     title: 'Yume Kataru yori Yume Utaou', titleJp: 'ユメ語るよりユメ歌おう',
     kind: { en: 'TV anime season 1 ending', ja: 'TVアニメ第1期エンディング' },
     spotify: 'https://open.spotify.com/embed/track/3ttohFhqvDwELSLXtrPtKY',
@@ -54,7 +58,7 @@ export const releases: Release[] = [
     },
   },
   {
-    id: 'omoi-yo-hitotsu-ni-nare', year: 2016, date: '2016-11-09',
+    id: 'omoi-yo-hitotsu-ni-nare', year: 2016, date: '2016-11-09', bpm: 168,
     title: 'Omoi yo Hitotsu ni Nare', titleJp: '想いよひとつになれ',
     kind: { en: 'TV anime season 1 insert song', ja: 'TVアニメ第1期挿入歌' },
     spotify: 'https://open.spotify.com/embed/track/2nC3tEAC3h8y9KG1h5dFjw',
@@ -66,7 +70,7 @@ export const releases: Release[] = [
     },
   },
   {
-    id: 'my-mai-tonight', year: 2017, date: '2017-11-29',
+    id: 'my-mai-tonight', year: 2017, date: '2017-11-29', bpm: 179,
     title: 'MY Mai☆TONIGHT', titleJp: 'MY舞☆TONIGHT',
     kind: { en: 'TV anime season 2 insert song', ja: 'TVアニメ第2期挿入歌' },
     spotify: 'https://open.spotify.com/embed/track/6PIx2cN6GYAQgRXgwq9fho',
@@ -78,7 +82,7 @@ export const releases: Release[] = [
     },
   },
   {
-    id: 'thank-you-friends', year: 2018, date: '2018-08-01',
+    id: 'thank-you-friends', year: 2018, date: '2018-08-01', bpm: 98,
     title: 'Thank you, FRIENDS!!', titleJp: 'Thank you, FRIENDS!!',
     kind: { en: '4th LoveLive! theme', ja: '4thライブ テーマソング' },
     spotify: 'https://open.spotify.com/embed/track/7pWdvkEHlPs8psbYQl7oyI',
@@ -90,7 +94,7 @@ export const releases: Release[] = [
     },
   },
   {
-    id: 'brightest-melody', year: 2019, date: '2019-02-06',
+    id: 'brightest-melody', year: 2019, date: '2019-02-06', bpm: 185,
     title: 'Brightest Melody', titleJp: 'Brightest Melody',
     kind: { en: 'Over the Rainbow insert song', ja: '劇場版『Over the Rainbow』挿入歌' },
     spotify: 'https://open.spotify.com/embed/track/5BBzwer9yZKtH89QRwxhXS',

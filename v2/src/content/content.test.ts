@@ -102,3 +102,14 @@ describe('added releases', () => {
     expect(ids.indexOf('brightest-melody')).toBeLessThan(ids.indexOf('kurukuru-cruller'))
   })
 })
+
+describe('tempos', () => {
+  it('carries the sourced BPM for songs that have one', () => {
+    const bpm = Object.fromEntries(releases.map((r) => [r.id, r.bpm]))
+    expect(bpm).toMatchObject({
+      'kimi-no-kokoro': 182, 'aozora-jumping-heart': 200, 'yume-kataru': 159, 'omoi-yo-hitotsu-ni-nare': 168,
+      'my-mai-tonight': 179, 'thank-you-friends': 98, 'brightest-melody': 185,
+    })
+    for (const r of releases) if (r.bpm !== undefined) expect(r.bpm).toBeGreaterThan(60)
+  })
+})
