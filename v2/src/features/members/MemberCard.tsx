@@ -1,5 +1,5 @@
 import type { CSSProperties, Ref } from 'react'
-import { memberAssets, type Member } from '../../content/members'
+import { memberAssets, type ShownMember } from '../../content/members'
 import { onColor } from '../../lib/color'
 import { useT } from '../../i18n'
 
@@ -7,7 +7,7 @@ import { useT } from '../../i18n'
  * A ticket: portrait on the left, a stub in her image colour on the right,
  * torn along a perforation. Her member number is the seat.
  */
-export function MemberCard({ member, onOpen, ref }: { member: Member; onOpen: () => void; ref?: Ref<HTMLButtonElement> }) {
+export function MemberCard({ member, onOpen, ref }: { member: ShownMember; onOpen: () => void; ref?: Ref<HTMLButtonElement> }) {
   const t = useT()
   const a = memberAssets(member)
   const [first, ...rest] = member.name.split(' ')
@@ -32,7 +32,7 @@ export function MemberCard({ member, onOpen, ref }: { member: Member; onOpen: ()
       </span>
       {/* The stub leans away on hover, as if about to be torn off at the gate. */}
       <span className="flex w-[46%] origin-bottom-left flex-col justify-between bg-[var(--c)] p-4 text-[var(--on-c)] transition-transform duration-300 motion-safe:group-hover:rotate-[2.5deg] motion-safe:group-focus-visible:rotate-[2.5deg]">
-        <span aria-hidden="true" className="font-led text-lg leading-none">No.{member.num}</span>
+        <span aria-hidden="true" className="font-led text-lg leading-none">No.{member.no}</span>
         <span>
           {before && <><span className="sr-only">{before.trim()}</span>{' '}</>}
           <span className="block font-display text-xl leading-none lg:text-[1.35rem]">{first}</span>{' '}

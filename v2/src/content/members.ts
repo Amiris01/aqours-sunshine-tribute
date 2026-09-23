@@ -8,6 +8,7 @@ export type UnitName = 'CYaRon!' | 'AZALEA' | 'Guilty Kiss'
 export type Blood = 'A' | 'B' | 'O' | 'AB'
 
 export interface Member {
+  /** Internal id: asset filenames, blurb keys, profile links. Not shown. */
   num: string
   slug: string
   name: string
@@ -92,13 +93,16 @@ const RAW: Member[] = [
   },
 ]
 
-// Official Aqours order (as on lovelive-anime.jp): each member's number is her position.
-export const DISPLAY_ORDER = ['01', '02', '03', '04', '05', '06', '07', '08', '09'] as const
+// Page order, by grade: 2nd years, 1st years, 3rd years (ids refer to RAW above).
+export const DISPLAY_ORDER = ['01', '05', '02', '07', '09', '06', '03', '04', '08'] as const
 
-export const members: Member[] = DISPLAY_ORDER.map((num) => {
+/** A member as shown on the page; `no` is her displayed number, i.e. her position. */
+export type ShownMember = Member & { no: string }
+
+export const members: ShownMember[] = DISPLAY_ORDER.map((num, i) => {
   const m = RAW.find((x) => x.num === num)
   if (!m) throw new Error(`Unknown member ${num}`)
-  return m
+  return { ...m, no: String(i + 1).padStart(2, '0') }
 })
 
 type AssetKind = 'portrait' | 'emblem' | 'banner' | 'sign'

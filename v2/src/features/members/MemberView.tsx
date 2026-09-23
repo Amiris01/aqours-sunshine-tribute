@@ -108,7 +108,7 @@ export function MemberView({ num, onNavigate, onClose, returnFocus }: Props) {
                   transition={{ duration: DUR.base, ease: EASE, delay: dir === 0 ? 0.08 : 0.04 }}
                   className="flex min-h-0 flex-col justify-center"
                 >
-                  <p className="font-led text-lg leading-none text-[var(--c)] md:text-2xl">No.{m.num}</p>
+                  <p className="font-led text-lg leading-none text-[var(--c)] md:text-2xl">No.{m.no}</p>
                   <Dialog.Title className="mt-2 font-display text-[clamp(1.6rem,min(5vw,5.4dvh),3.5rem)] leading-[1.05]">{m.name}</Dialog.Title>
                   <p lang="ja" className="mt-1 text-haze md:text-lg">{m.jp}</p>
                   <p className="mt-3 max-w-[48ch] text-[15px] leading-snug md:mt-5 md:text-lg md:leading-relaxed">{t(`blurb.${m.num}` as Key)}</p>
