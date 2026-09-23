@@ -13,6 +13,7 @@ import { Members } from './features/members/Members'
 import { SubUnits } from './features/subunits/SubUnits'
 import { Discography } from './features/music/Discography'
 import { Journey } from './features/journey/Journey'
+import { NowPlayingAnnouncer } from './features/music/NowPlayingAnnouncer'
 
 // Split out of the entry chunk: the player (Radix Slider) until first play,
 // Motion's animation features until after first paint.
@@ -45,6 +46,7 @@ export default function App() {
           <Journey />
         </main>
         <Footer />
+        <NowPlayingAnnouncer />
         {playerMounted.current && (
           <ErrorBoundary fallback={null}>
             <Suspense fallback={null}>

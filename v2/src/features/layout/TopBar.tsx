@@ -32,6 +32,7 @@ export function TopBar() {
           {track && minimized && (
             <button
               type="button"
+              data-np-pill
               onClick={() => usePlayer.getState().setMinimized(false)}
               aria-label={`${t('np.expand')}: ${track.title}`}
               className="flex max-w-40 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs sm:max-w-56"

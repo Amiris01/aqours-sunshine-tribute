@@ -47,3 +47,11 @@ it('lets the member view scroll itself instead of the page behind (Lenis)', asyn
   await userEvent.click(screen.getByRole('button', { name: 'Open Chika Takami' }))
   expect(await screen.findByRole('dialog')).toHaveAttribute('data-lenis-prevent')
 })
+
+it('closes when clicking the backdrop outside the content', async () => {
+  render(<Members />)
+  await userEvent.click(screen.getByRole('button', { name: 'Open Chika Takami' }))
+  await screen.findByRole('dialog')
+  await userEvent.click(screen.getByTestId('member-backdrop'))
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+})

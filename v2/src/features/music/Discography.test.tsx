@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { Discography } from './Discography'
 import { usePlayer } from '../../store/player'
@@ -46,4 +47,26 @@ it('re-shows the player fallback when Play is pressed on the current release aft
   usePlayer.getState().setMinimized(true)
   await userEvent.click(screen.getByRole('button', { name: 'Play' }))
   expect(usePlayer.getState()).toMatchObject({ index: 0, status: 'error', minimized: false })
+})
+
+it('shows the verified blurb for the selected release in the current language', async () => {
+  render(<Discography />)
+  expect(screen.getByTestId('release-blurb')).toHaveTextContent(releases[0]!.blurb.en)
+  await userEvent.click(screen.getByRole('button', { name: '2024' }))
+  expect(screen.getByTestId('release-blurb')).toHaveTextContent('Oricon')
+})
+
+it('respects reduced motion: no smooth shelf scroll and the vinyl spin is motion-safe only', async () => {
+  const original = window.matchMedia
+  window.matchMedia = ((q: string) => ({ ...original(q), matches: q.includes('reduce') })) as typeof window.matchMedia
+  try {
+    render(<Discography />)
+    const scroll = vi.mocked(Element.prototype.scrollIntoView)
+    scroll.mockClear()
+    await userEvent.click(screen.getByRole('button', { name: '2021' }))
+    expect(scroll).toHaveBeenLastCalledWith(expect.objectContaining({ behavior: 'auto' }))
+    expect(screen.getByTestId('vinyl').className).not.toMatch(/(^|\s)animate-spin-slow/)
+  } finally {
+    window.matchMedia = original
+  }
 })

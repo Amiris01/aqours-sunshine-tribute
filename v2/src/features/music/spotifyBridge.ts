@@ -118,12 +118,16 @@ export function createSpotifyEngine(
       const d = e.data ?? {}
       const position = (d.position ?? 0) / 1000
       const duration = (d.duration ?? 0) / 1000
-      sink.report({ position, duration, paused: Boolean(d.isPaused), buffering: Boolean(d.isBuffering) })
-      if (duration <= 0) return
+      const progress = { position, duration, paused: Boolean(d.isPaused), buffering: Boolean(d.isBuffering) }
+      if (duration <= 0) return sink.report(progress)
       if (!armed) {
-        if (position < duration - ARM_MARGIN_S) armed = true
-        return
+        // Near-the-end updates before the new track has started are the previous
+        // track's stale tail: drop them so the new track's status doesn't flicker.
+        if (position >= duration - ARM_MARGIN_S) return
+        armed = true
+        return sink.report(progress)
       }
+      sink.report(progress)
       if (position >= duration - END_SLACK_S) {
         armed = false
         sink.ended()

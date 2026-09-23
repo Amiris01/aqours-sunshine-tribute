@@ -3,6 +3,7 @@ import {
   createSpotifyEngine,
   loadSpotifyApi,
   resetSpotifyApiForTests,
+  startSpotify,
   type PlaybackData,
   type PlayerSink,
   type SpotifyController,
@@ -122,5 +123,35 @@ describe('loadSpotifyApi', () => {
     const api = { createController: vi.fn() }
     ready(api)
     await expect(second).resolves.toBe(api)
+  })
+})
+
+it('drops stale end-of-track updates from the previous track after a load (no status flicker)', () => {
+  const { api, emit } = fakeApi()
+  const s = sink()
+  createSpotifyEngine(api, document.createElement('div'), s, 'spotify:track:A')
+  emit('ready')
+  emit('playback_update', { position: 30000, duration: 90000, isPaused: false })
+  vi.mocked(s.attachEngine).mock.calls[0]![0].load('spotify:track:B')
+  vi.mocked(s.report).mockClear()
+  emit('playback_update', { position: 89800, duration: 90000, isPaused: false }) // stale, from A
+  expect(s.report).not.toHaveBeenCalled()
+  emit('playback_update', { position: 0, duration: 120000, isPaused: false }) // B started
+  expect(s.report).toHaveBeenCalledWith({ position: 0, duration: 120, paused: false, buffering: false })
+})
+
+describe('startSpotify', () => {
+  beforeEach(() => {
+    resetSpotifyApiForTests()
+    delete window.SpotifyIframeApi
+  })
+  it('reports failure to the player when the API script fails to load', async () => {
+    const s = sink()
+    const started = startSpotify(document.createElement('div'), s, 'spotify:track:A')
+    const tag = [...document.querySelectorAll('script')].at(-1)!
+    expect(tag.src).toContain('open.spotify.com/embed/iframe-api')
+    tag.dispatchEvent(new Event('error'))
+    await started
+    expect(s.fail).toHaveBeenCalledTimes(1)
   })
 })

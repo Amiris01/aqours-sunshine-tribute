@@ -40,6 +40,28 @@ export function Player() {
     if (index >= 0 && !startedRef.current) start()
   }, [index, start])
 
+  // Focus management: remember what opened the player so Close can return there,
+  // and hand focus to the top-bar pill when minimizing (the buttons unmount).
+  const returnFocusRef = useRef<HTMLElement | null>(null)
+  const wasOpenRef = useRef(false)
+  useEffect(() => {
+    const open = index >= 0
+    if (open && !wasOpenRef.current) {
+      const el = document.activeElement
+      returnFocusRef.current = el instanceof HTMLElement && el !== document.body ? el : null
+    }
+    wasOpenRef.current = open
+  }, [index])
+  useEffect(() => {
+    if (minimized) document.querySelector<HTMLElement>('[data-np-pill]')?.focus()
+  }, [minimized])
+
+  const close = () => {
+    const back = returnFocusRef.current
+    usePlayer.getState().close()
+    if (back?.isConnected) back.focus()
+  }
+
   const retry = () => {
     usePlayer.getState().retry()
     start()
@@ -54,9 +76,6 @@ export function Player() {
       {/* Spotify iframe host: in-flow, zero height (a 1px/opacity-0 iframe breaks playback). */}
       <div className="pointer-events-none h-0 overflow-hidden" aria-hidden="true">
         <div ref={containerRef} />
-      </div>
-      <div role="status" aria-live="polite" className="sr-only">
-        {track ? `${t('np.nowPlaying')}: ${track.title}` : ''}
       </div>
       <AnimatePresence>
         {track && !minimized && (
@@ -144,7 +163,7 @@ export function Player() {
                   </a>
                 )}
                 <button type="button" className={btn} onClick={() => usePlayer.getState().setMinimized(true)} aria-label={t('np.minimize')}>▾</button>
-                <button type="button" className={btn} onClick={() => usePlayer.getState().close()} aria-label={t('np.close')}>✕</button>
+                <button type="button" className={btn} onClick={close} aria-label={t('np.close')}>✕</button>
               </div>
             </div>
           </motion.section>

@@ -76,3 +76,12 @@ describe('performance assets', () => {
     expect(existsSync(resolve('public', 'assets/logo/aqours-logo.webp'))).toBe(true)
   })
 })
+
+describe('release blurbs', () => {
+  it('every release has an EN and JA blurb', () => {
+    for (const r of releases) {
+      expect(r.blurb.en.trim(), r.id).not.toBe('')
+      expect(r.blurb.ja.trim(), r.id).not.toBe('')
+    }
+  })
+})

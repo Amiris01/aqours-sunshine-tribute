@@ -4,7 +4,7 @@ import type { Release } from '../content/discography'
 
 const rel = (id: string, track: string): Release => ({
   id, year: 2016, title: id, titleJp: id, kind: { en: 'x', ja: 'x' },
-  spotify: `https://open.spotify.com/embed/track/${track}`, cover: '', accent: '#000000',
+  spotify: `https://open.spotify.com/embed/track/${track}`, cover: '', accent: '#000000', blurb: { en: 'x', ja: 'x' },
 })
 const queue = [rel('a', 'A1'), rel('b', 'B2'), rel('c', 'C3')]
 const fakeEngine = (): Engine => ({ load: vi.fn(), toggle: vi.fn(), seek: vi.fn(), pause: vi.fn() })
@@ -124,4 +124,14 @@ it('seek updates position and calls the engine', () => {
   store.getState().seek(42)
   expect(engine.seek).toHaveBeenCalledWith(42)
   expect(store.getState().position).toBe(42)
+})
+
+it('loads only the last of several tracks requested before the engine attaches', () => {
+  const store = createPlayerStore(queue)
+  store.getState().playAt(0)
+  store.getState().playAt(2)
+  const engine = fakeEngine()
+  store.getState().attachEngine(engine)
+  expect(engine.load).toHaveBeenCalledTimes(1)
+  expect(engine.load).toHaveBeenCalledWith('spotify:track:C3')
 })

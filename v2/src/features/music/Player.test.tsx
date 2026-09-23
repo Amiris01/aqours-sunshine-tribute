@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import { usePlayer } from '../../store/player'
@@ -70,4 +70,22 @@ it('closes', async () => {
   usePlayer.getState().playAt(0)
   await userEvent.click(await screen.findByRole('button', { name: 'Close player' }))
   expect(usePlayer.getState().index).toBe(-1)
+})
+
+it('moves focus to the top-bar pill on minimize and back to the trigger on close', async () => {
+  const { TopBar } = await import('../layout/TopBar')
+  render(
+    <>
+      <TopBar />
+      <button type="button" onClick={() => usePlayer.getState().playAt(0)}>trigger</button>
+      <Player />
+    </>,
+  )
+  const trigger = screen.getByRole('button', { name: 'trigger' })
+  await userEvent.click(trigger)
+  await userEvent.click(await screen.findByRole('button', { name: 'Minimize player' }))
+  await waitFor(() => expect(screen.getByRole('button', { name: /Show player/ })).toHaveFocus())
+  await userEvent.click(screen.getByRole('button', { name: /Show player/ }))
+  await userEvent.click(await screen.findByRole('button', { name: 'Close player' }))
+  await waitFor(() => expect(trigger).toHaveFocus())
 })

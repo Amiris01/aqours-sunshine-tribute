@@ -57,7 +57,19 @@ export function MemberView({ num, onNavigate, onClose, returnFocus }: Props) {
               style={{ '--c': m.color } as CSSProperties}
               className="fixed inset-0 z-50 overflow-y-auto outline-none"
             >
-              <div className="mx-auto grid min-h-full max-w-6xl items-center gap-8 p-4 pt-8 md:grid-cols-[1.2fr_1fr] md:p-10">
+              {/* The content layer covers the overlay, so it handles "click outside" itself:
+                  only clicks on this empty backdrop area (not its children) close. */}
+              <motion.div
+                data-testid="member-backdrop"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) onClose()
+                }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, y: 12 }}
+                transition={{ duration: 0.25 }}
+                className="mx-auto grid min-h-full max-w-6xl items-center gap-8 p-4 pt-8 md:grid-cols-[1.2fr_1fr] md:p-10"
+              >
                 <motion.div
                   key={m.num}
                   initial={{ opacity: 0, scale: 0.94 }}
@@ -97,7 +109,7 @@ export function MemberView({ num, onNavigate, onClose, returnFocus }: Props) {
                     <Dialog.Close className={`${navBtn} ml-auto`} aria-label={t('members.close')}>✕</Dialog.Close>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </Dialog.Content>
           </Dialog.Portal>
         )}

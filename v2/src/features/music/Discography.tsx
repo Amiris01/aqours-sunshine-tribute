@@ -1,5 +1,6 @@
 import { useRef, useState, type CSSProperties } from 'react'
 import { AnimatePresence, m as motion } from 'motion/react'
+import { prefersReducedMotion } from '../../lib/motionPref'
 import { useShallow } from 'zustand/react/shallow'
 import { releases } from '../../content/discography'
 import { pick } from '../../content/types'
@@ -24,7 +25,7 @@ export function Discography() {
     setSel(n)
     const el = itemRefs.current[n]
     if (focus) el?.focus()
-    el?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+    el?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', inline: 'center', block: 'nearest' })
   }
 
   return (
@@ -38,9 +39,10 @@ export function Discography() {
           {/* Vinyl + cover */}
           <div className="relative mx-auto aspect-square w-full max-w-md">
             <div
-              className={`absolute right-0 top-1/2 aspect-square w-[80%] -translate-y-1/2 rounded-full shadow-[0_0_80px_-10px_var(--accent)] ${spinning ? 'animate-spin-slow' : ''}`}
+              className={`absolute right-0 top-1/2 aspect-square w-[80%] -translate-y-1/2 rounded-full shadow-[0_0_80px_-10px_var(--accent)] ${spinning ? 'motion-safe:animate-spin-slow' : ''}`}
               style={{ background: 'repeating-radial-gradient(circle, #0b0b0f 0 2px, #16161d 2px 4px)' }}
               aria-hidden="true"
+              data-testid="vinyl"
             >
               <img src={r.cover} alt="" className="absolute left-1/2 top-1/2 size-[34%] -translate-x-1/2 -translate-y-1/2 rounded-full object-cover" />
               <span className="absolute left-1/2 top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sea-950" />
@@ -66,6 +68,7 @@ export function Discography() {
             </p>
             <h3 className="mt-3 font-display text-3xl md:text-5xl">{r.title}</h3>
             <p lang="ja" className="mt-2 text-mist">{r.titleJp}</p>
+            <p data-testid="release-blurb" className="mt-5 max-w-md leading-relaxed text-ink/90">{pick(r.blurb, lang)}</p>
             <button
               type="button"
               onClick={() => (isCurrent && status !== 'error' ? usePlayer.getState().toggle() : usePlayer.getState().playAt(sel))}
