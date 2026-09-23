@@ -78,3 +78,12 @@ it('slides the next member in from the direction you move', async () => {
   await user.keyboard('{ArrowLeft}')
   expect(screen.getByTestId('member-art')).toHaveAttribute('data-direction', '-1')
 })
+
+it('lays the profile out as one fixed page that never scrolls', async () => {
+  render(<Members />)
+  await userEvent.click(screen.getByRole('button', { name: 'Open Chika Takami' }))
+  const dialog = await screen.findByRole('dialog')
+  expect(dialog.className).toMatch(/\boverflow-hidden\b/)
+  expect(dialog.className).not.toMatch(/overflow-y-auto/)
+  expect(screen.getByTestId('member-backdrop').className).toMatch(/\bh-dvh\b/)
+})

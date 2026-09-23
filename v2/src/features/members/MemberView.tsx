@@ -63,9 +63,14 @@ export function MemberView({ num, onNavigate, onClose, returnFocus }: Props) {
                 if (lastNum.current) returnFocus(lastNum.current)
               }}
               style={{ '--c': m.color } as CSSProperties}
-              className="fixed inset-0 z-50 overflow-y-auto outline-none"
+              className="fixed inset-0 z-50 overflow-hidden outline-none"
             >
-              {/* The content layer covers the overlay, so it handles "click outside" itself:
+              {/* Close stays pinned to the corner so it never takes a row of the page. */}
+              <Dialog.Close className={`${navBtn} absolute right-4 top-3 z-10 bg-night/80`} aria-label={t('members.close')}>
+                <CloseIcon />
+              </Dialog.Close>
+              {/* One page, no scrolling: the art and the profile share exactly one viewport.
+                  The content layer covers the overlay, so it handles "click outside" itself:
                   only clicks on this empty backdrop area (not its children) close. */}
               <motion.div
                 data-testid="member-backdrop"
@@ -76,30 +81,38 @@ export function MemberView({ num, onNavigate, onClose, returnFocus }: Props) {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, y: 12 }}
                 transition={{ duration: DUR.base, ease: EASE }}
-                className="mx-auto grid min-h-full max-w-6xl items-center gap-8 p-4 pt-8 md:grid-cols-[1.15fr_1fr] md:gap-12 md:p-10"
+                className="mx-auto grid h-dvh max-w-6xl grid-rows-[minmax(0,34fr)_minmax(0,66fr)] gap-4 p-4 pt-16 md:grid-cols-[1.05fr_1fr] md:grid-rows-1 md:items-center md:gap-10 md:px-10 md:py-8"
               >
-                <motion.div
-                  key={m.num}
-                  data-testid="member-art"
-                  data-direction={dir}
-                  initial={dir === 0 ? { opacity: 0, scale: 0.96 } : { opacity: 0, x: dir * 56 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  transition={{ duration: DUR.slow, ease: EASE }}
-                  className="relative aspect-[16/10] overflow-hidden rounded-[6px] border-b-4 border-[var(--c)] md:aspect-auto md:h-[74vh]"
-                >
-                  <img src={memberAssets(m).banner} alt="" className="h-full w-full object-cover" />
-                </motion.div>
+                <div className="relative min-h-0 md:h-[min(78dvh,680px)]">
+                  <motion.div
+                    key={m.num}
+                    data-testid="member-art"
+                    data-direction={dir}
+                    initial={dir === 0 ? { opacity: 0, scale: 0.96 } : { opacity: 0, x: dir * 56 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    transition={{ duration: DUR.slow, ease: EASE }}
+                    className="h-full overflow-hidden rounded-[6px] border-b-4 border-[var(--c)]"
+                  >
+                    <img src={memberAssets(m).banner} alt="" className="h-full w-full object-cover" />
+                  </motion.div>
+                  {/* Outside the keyed art so they keep focus while you step through the nine. */}
+                  <div className="absolute bottom-3 left-3 flex gap-2">
+                    <button type="button" className={`${navBtn} bg-night/80`} onClick={() => go(-1)} aria-label={t('members.prev')}><ArrowIcon dir="left" /></button>
+                    <button type="button" className={`${navBtn} bg-night/80`} onClick={() => go(1)} aria-label={t('members.next')}><ArrowIcon /></button>
+                  </div>
+                </div>
                 <motion.div
                   key={`info-${m.num}`}
                   initial={dir === 0 ? { opacity: 0 } : { opacity: 0, x: dir * 28 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: DUR.base, ease: EASE, delay: dir === 0 ? 0.08 : 0.04 }}
+                  className="flex min-h-0 flex-col justify-center"
                 >
-                  <p className="font-led text-2xl text-[var(--c)]">No.{m.num}</p>
-                  <Dialog.Title className="mt-2 font-display text-[clamp(2.2rem,5vw,3.75rem)] leading-[1.05]">{m.name}</Dialog.Title>
-                  <p lang="ja" className="mt-2 text-lg text-haze">{m.jp}</p>
-                  <p className="mt-6 max-w-[48ch] text-lg leading-relaxed">{t(`blurb.${m.num}` as Key)}</p>
-                  <dl className="mt-8 grid grid-cols-2 gap-x-8 gap-y-4 border-t border-line pt-6">
+                  <p className="font-led text-lg leading-none text-[var(--c)] md:text-2xl">No.{m.num}</p>
+                  <Dialog.Title className="mt-2 font-display text-[clamp(1.6rem,min(5vw,5.4dvh),3.5rem)] leading-[1.05]">{m.name}</Dialog.Title>
+                  <p lang="ja" className="mt-1 text-haze md:text-lg">{m.jp}</p>
+                  <p className="mt-3 max-w-[48ch] text-[15px] leading-snug md:mt-5 md:text-lg md:leading-relaxed">{t(`blurb.${m.num}` as Key)}</p>
+                  <dl className="mt-4 grid grid-cols-3 gap-x-4 gap-y-3 border-t border-line pt-4 md:mt-6 md:gap-y-4 md:pt-5">
                     {([
                       ['profile.cv', lang === 'ja' ? m.cvJp : m.cv],
                       ['profile.birthday', formatBirthday(m.birth, lang)],
@@ -111,18 +124,18 @@ export function MemberView({ num, onNavigate, onClose, returnFocus }: Props) {
                       ['profile.color', pick(m.colorName, lang)],
                       ['profile.trademark', pick(m.trademark, lang)],
                     ] as [Key, string][]).map(([k, v]) => (
-                      <div key={k}>
-                        <dt className="text-sm text-haze">{t(k)}</dt>
-                        <dd className="mt-0.5 font-bold">{v}</dd>
+                      <div key={k} className="min-w-0">
+                        <dt className="text-xs text-haze md:text-sm">{t(k)}</dt>
+                        <dd className="mt-0.5 text-sm font-bold leading-tight [overflow-wrap:anywhere] md:text-base">{v}</dd>
                       </div>
                     ))}
                   </dl>
-                  <img src={memberAssets(m).sign} alt={t('members.signature', { name: m.name })} className="mt-6 h-16 w-auto" />
-                  <div className="mt-8 flex gap-2">
-                    <button type="button" className={navBtn} onClick={() => go(-1)} aria-label={t('members.prev')}><ArrowIcon dir="left" /></button>
-                    <button type="button" className={navBtn} onClick={() => go(1)} aria-label={t('members.next')}><ArrowIcon /></button>
-                    <Dialog.Close className={`${navBtn} ml-auto`} aria-label={t('members.close')}><CloseIcon /></Dialog.Close>
-                  </div>
+                  {/* The signature is the first thing to give way on short screens. */}
+                  <img
+                    src={memberAssets(m).sign}
+                    alt={t('members.signature', { name: m.name })}
+                    className="mt-4 h-10 w-auto self-start md:mt-6 md:h-14 [@media(max-height:760px)]:hidden"
+                  />
                 </motion.div>
               </motion.div>
             </Dialog.Content>
