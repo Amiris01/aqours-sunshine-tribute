@@ -20,12 +20,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # V1 (repo root) — unchanged.
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
       - run: npm ci
       - run: npm run build
+
+      # V2 (v2/) — its toolchain needs Node 22. Tests gate the deploy; the build
+      # is published beside V1 at /aqours-sunshine-tribute/v2/.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+      - run: npm ci
+        working-directory: v2
+      - run: npm test
+        working-directory: v2
+      - run: npm run build
+        working-directory: v2
+      - run: mkdir -p dist/v2 && cp -r v2/dist/. dist/v2/
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
