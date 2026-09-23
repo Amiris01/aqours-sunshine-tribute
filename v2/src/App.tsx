@@ -6,6 +6,7 @@ import { SmoothScroll } from './features/layout/SmoothScroll'
 import { TopBar } from './features/layout/TopBar'
 import { Footer } from './features/layout/Footer'
 import { Player } from './features/music/Player'
+import { Hero } from './features/hero/Hero'
 
 export default function App() {
   const t = useT()
@@ -20,7 +21,7 @@ export default function App() {
       <SmoothScroll />
       <TopBar />
       <main id="top">
-        {/* sections: Hero, About, Members, SubUnits, Discography, Journey */}
+        <Hero />
       </main>
       <Footer />
       <Player />
