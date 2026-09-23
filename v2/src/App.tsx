@@ -8,6 +8,7 @@ import { Footer } from './features/layout/Footer'
 import { Player } from './features/music/Player'
 import { Hero } from './features/hero/Hero'
 import { About } from './features/about/About'
+import { Members } from './features/members/Members'
 
 export default function App() {
   const t = useT()
@@ -24,6 +25,7 @@ export default function App() {
       <main id="top">
         <Hero />
         <About />
+        <Members />
       </main>
       <Footer />
       <Player />
