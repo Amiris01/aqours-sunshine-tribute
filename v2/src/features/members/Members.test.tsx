@@ -2,8 +2,13 @@ import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Members } from './Members'
 import { useLang } from '../../store/lang'
+import { useMemberView } from '../../store/memberView'
 
-beforeEach(() => useLang.getState().setLang('en'))
+beforeEach(() => {
+  useLang.getState().setLang('en')
+  useMemberView.getState().close()
+  useMemberView.setState({ opener: null })
+})
 
 it('renders nine member cards in display order', () => {
   render(<Members />)

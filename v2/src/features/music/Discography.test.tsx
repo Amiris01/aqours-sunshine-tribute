@@ -1,5 +1,4 @@
-import { render, screen } from '@testing-library/react'
-import { vi } from 'vitest'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Discography } from './Discography'
 import { usePlayer } from '../../store/player'
@@ -11,33 +10,44 @@ beforeEach(() => {
   usePlayer.getState().close()
 })
 
-const detailTitle = () => screen.getByRole('heading', { level: 3 })
+const row = (i: number) => screen.getByRole('button', { name: new RegExp(`^M0${i + 1} `) })
 
-it('starts on the first release and jumps by year', async () => {
+it('lists every release as a numbered setlist row, first one open', () => {
   render(<Discography />)
-  expect(detailTitle()).toHaveTextContent(releases[0]!.title)
-  await userEvent.click(screen.getByRole('button', { name: '2021' }))
-  expect(detailTitle()).toHaveTextContent('KU-RU-KU-RU Cruller!')
-  expect(screen.getByRole('button', { name: '2021' })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getAllByRole('button', { name: /^M0\d / })).toHaveLength(releases.length)
+  expect(row(0)).toHaveAttribute('aria-expanded', 'true')
+  expect(row(1)).toHaveAttribute('aria-expanded', 'false')
+  expect(screen.getByTestId('release-blurb')).toHaveTextContent(releases[0]!.blurb.en)
 })
 
-it('moves through the shelf with arrow keys', async () => {
+it('opens a row on click and shows its blurb', async () => {
+  render(<Discography />)
+  const cruller = releases.findIndex((r) => r.id === 'kurukuru-cruller')
+  await userEvent.click(row(cruller))
+  expect(row(cruller)).toHaveAttribute('aria-expanded', 'true')
+  expect(row(0)).toHaveAttribute('aria-expanded', 'false')
+  expect(screen.getByTestId('release-blurb')).toHaveTextContent('Monster Strike')
+})
+
+it('moves through the setlist with arrow keys', async () => {
   const user = userEvent.setup()
   render(<Discography />)
-  const first = screen.getByRole('button', { name: `${releases[0]!.title} (${releases[0]!.year})` })
-  first.focus()
-  await user.keyboard('{ArrowRight}')
-  expect(detailTitle()).toHaveTextContent(releases[1]!.title)
-  expect(screen.getByRole('button', { name: `${releases[1]!.title} (${releases[1]!.year})` })).toHaveFocus()
-  await user.keyboard('{ArrowLeft}{ArrowLeft}')
-  expect(detailTitle()).toHaveTextContent(releases.at(-1)!.title)
+  row(0).focus()
+  await user.keyboard('{ArrowDown}')
+  expect(row(1)).toHaveFocus()
+  expect(row(1)).toHaveAttribute('aria-expanded', 'true')
+  await user.keyboard('{ArrowUp}{ArrowUp}')
+  expect(row(releases.length - 1)).toHaveFocus()
 })
 
-it('plays the selected release', async () => {
+it('plays the open release and marks its row on air', async () => {
   render(<Discography />)
-  await userEvent.click(screen.getByRole('button', { name: '2024' }))
-  await userEvent.click(screen.getByRole('button', { name: 'Play' }))
-  expect(usePlayer.getState().index).toBe(releases.findIndex((r) => r.year === 2024))
+  const last = releases.length - 1
+  await userEvent.click(row(last))
+  await userEvent.click(screen.getByRole('button', { name: `Play ${releases[last]!.title}` }))
+  expect(usePlayer.getState().index).toBe(last)
+  usePlayer.getState().report({ position: 3, duration: 90, paused: false, buffering: false })
+  expect(await within(row(last)).findByText('On air')).toBeInTheDocument()
 })
 
 it('re-shows the player fallback when Play is pressed on the current release after a failure', async () => {
@@ -45,28 +55,6 @@ it('re-shows the player fallback when Play is pressed on the current release aft
   usePlayer.getState().playAt(0)
   usePlayer.getState().fail()
   usePlayer.getState().setMinimized(true)
-  await userEvent.click(screen.getByRole('button', { name: 'Play' }))
+  await userEvent.click(screen.getByRole('button', { name: `Play ${releases[0]!.title}` }))
   expect(usePlayer.getState()).toMatchObject({ index: 0, status: 'error', minimized: false })
-})
-
-it('shows the verified blurb for the selected release in the current language', async () => {
-  render(<Discography />)
-  expect(screen.getByTestId('release-blurb')).toHaveTextContent(releases[0]!.blurb.en)
-  await userEvent.click(screen.getByRole('button', { name: '2024' }))
-  expect(screen.getByTestId('release-blurb')).toHaveTextContent('Oricon')
-})
-
-it('respects reduced motion: no smooth shelf scroll and the vinyl spin is motion-safe only', async () => {
-  const original = window.matchMedia
-  window.matchMedia = ((q: string) => ({ ...original(q), matches: q.includes('reduce') })) as typeof window.matchMedia
-  try {
-    render(<Discography />)
-    const scroll = vi.mocked(Element.prototype.scrollIntoView)
-    scroll.mockClear()
-    await userEvent.click(screen.getByRole('button', { name: '2021' }))
-    expect(scroll).toHaveBeenLastCalledWith(expect.objectContaining({ behavior: 'auto' }))
-    expect(screen.getByTestId('vinyl').className).not.toMatch(/(^|\s)animate-spin-slow/)
-  } finally {
-    window.matchMedia = original
-  }
 })

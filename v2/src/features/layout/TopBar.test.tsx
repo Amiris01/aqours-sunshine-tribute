@@ -11,7 +11,7 @@ beforeEach(() => {
 
 it('links to every section', () => {
   render(<TopBar />)
-  for (const [name, href] of [['Members', '#members'], ['Units', '#units'], ['Music', '#music'], ['Journey', '#journey']]) {
+  for (const [name, href] of [['Members', '#members'], ['Units', '#units'], ['Setlist', '#music'], ['Timeline', '#journey']]) {
     expect(screen.getByRole('link', { name })).toHaveAttribute('href', href)
   }
 })

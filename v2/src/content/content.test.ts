@@ -66,7 +66,7 @@ describe('releases', () => {
 
 describe('timeline', () => {
   it('runs 2015 → Finale 2025', () => {
-    expect(timeline[0]!.when.en).toContain('2015')
+    expect(timeline[0]!.date).toBe('2015.04')
     expect(timeline.at(-1)!.text.en).toContain('Belluna Dome')
   })
 })

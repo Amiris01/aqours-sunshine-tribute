@@ -6,26 +6,24 @@ export const ja: Dict = {
 
   'nav.members': 'メンバー',
   'nav.units': 'ユニット',
-  'nav.music': '楽曲',
-  'nav.journey': 'あゆみ',
+  'nav.music': "セットリスト",
+  'nav.journey': "あゆみ",
   'nav.home': 'Aqours — トップへ戻る',
 
   'hero.seriesLogo': 'assets/logo/Lovelive_sunshine_jp.png',
   'hero.seriesLogoAlt': 'ラブライブ！サンシャイン!! — スクールアイドルプロジェクト',
-  'hero.eyebrowTag': 'ファン トリビュート',
+  'hero.eyebrowTag': "ファントリビュート",
   'hero.tagline': '輝こう、私たちと一緒に — 今ここ、この海辺で。',
-  'hero.play': 'Aqoursを再生',
+  'hero.play': "M01から再生",
   'hero.scrollCue': 'スクロールして飛び込もう',
 
-  'about.eyebrow': 'スクールアイドルプロジェクト',
   'about.h2': '9人の少女、ひとつの輝く海。',
   'about.lead':
     'Aqours（アクア）は、静岡県沼津市の内浦にある浦の星女学院のスクールアイドルグループです。伝説のμ’sに憧れ、閉校の危機に立ち向かいながら、9人の仲間がただひとつの輝く夢を追いかけます — 今ここで、持てるすべてを懸けて輝くために。',
   'about.foot': 'メンバー9人、サブユニット3組、2015年から。',
 
-  'members.eyebrow': 'Aqoursに会おう',
-  'members.h2': '9つの心、9つの色。',
-  'members.lead': 'メンバーそれぞれが自分のイメージカラーで輝きます。選んで会いに行こう。',
+  'members.h2': "浦の星の9人",
+  'members.lead': "チケットを選ぶとプロフィールが開きます。",
   'members.open': '{name}を開く',
   'members.prev': '前のメンバー',
   'members.next': '次のメンバー',
@@ -56,18 +54,14 @@ export const ja: Dict = {
   'blurb.08': '声高に生き、さらに輝く、自由奔放な理事長でホテル令嬢。',
   'blurb.09': 'ステージの光の下で最も明るく花開く、内気な末っ子。',
 
-  'subunits.eyebrow': '3つのサブユニット',
-  'subunits.h2': '小さなグループ、同じ輝き。',
+  'subunits.h2': "3つのユニット",
   'subunits.lead': '9人全員に加え、Aqoursは3つのサブユニットに分かれます — それぞれが独自のサウンドとスタイルを持っています。',
   'subunit.tagline.CYaRon!': '明るく、元気いっぱい、海辺の陽光に満ちて。',
   'subunit.tagline.AZALEA': 'クールで、落ち着いていて、さりげなく優雅。',
   'subunit.tagline.Guilty Kiss': '大胆で、妖艶で、まぎれもなく印象的。',
 
-  'disc.eyebrow': 'ディスコグラフィー · 2015–2024',
-  'disc.h2': '輝きを放つ歌たち。',
-  'disc.playThis': '再生',
-  'disc.years': '年へジャンプ',
-  'disc.shelf': 'リリース',
+  'disc.h2': "セットリスト",
+  'disc.playThis': "{title}を再生",
   'disc.cover': '{title} のジャケット',
 
   'np.region': '音楽プレーヤー',
@@ -86,8 +80,12 @@ export const ja: Dict = {
   'np.retry': '再試行',
   'np.previewNote': 'フル再生にはSpotifyへのログインが必要です。未ログインの場合はプレビュー再生になります。',
 
-  'journey.eyebrow': 'あゆみ',
-  'journey.h2': 'ゼロから、永久へ。',
+  'journey.h2': 'あゆみ',
+
+  'hero.penlight': "{name}のプロフィールを開く",
+  'hero.penlights': "ペンライト — メンバーを選ぶ",
+  'disc.lead': "2015年から2024年までのAqoursの8曲を、リリース順に。",
+  'np.onAir': "ON AIR",
 
   'foot.mark': '輝け!!',
   'foot.sub': 'Aqours、永遠の輝き。',

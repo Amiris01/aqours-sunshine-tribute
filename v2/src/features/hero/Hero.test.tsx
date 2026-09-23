@@ -21,6 +21,6 @@ it('shows the logo heading, tagline and fallback scene without WebGL', () => {
 
 it('Play Aqours starts the queue from the first release', async () => {
   render(<Hero />)
-  await userEvent.click(screen.getByRole('button', { name: /Play Aqours/ }))
+  await userEvent.click(screen.getByRole('button', { name: 'Play from M01' }))
   expect(usePlayer.getState().index).toBe(0)
 })

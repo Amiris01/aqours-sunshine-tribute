@@ -6,9 +6,11 @@ import { usePlayer } from '../../store/player'
 import { spotifyOpenUrl, spotifyUri } from '../../content/discography'
 import { useT } from '../../i18n'
 import { fmtTime } from '../../lib/format'
+import { onColor } from '../../lib/color'
+import { CloseIcon, MinimizeIcon, NextIcon, PauseIcon, PlayIcon, PrevIcon } from '../../lib/icons'
 import { startSpotify } from './spotifyBridge'
 
-const btn = 'grid size-10 place-items-center rounded-full text-ink transition hover:bg-white/10 disabled:opacity-40'
+const btn = 'grid size-10 place-items-center rounded-[3px] text-ink transition hover:bg-line disabled:opacity-40'
 
 export function Player() {
   const t = useT()
@@ -70,6 +72,7 @@ export function Player() {
   const track = index >= 0 ? queue[index] : undefined
   const playing = status === 'playing'
   const openUrl = track ? spotifyOpenUrl(track.spotify) : null
+  const code = `M${String(index + 1).padStart(2, '0')}`
 
   return (
     <>
@@ -88,52 +91,59 @@ export function Player() {
           <motion.section
             key="player"
             aria-label={t('np.region')}
-            initial={{ y: 120, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 120, opacity: 0 }}
-            transition={{ type: 'spring', damping: 26, stiffness: 260 }}
+            initial={{ y: 120 }}
+            animate={{ y: 0 }}
+            exit={{ y: 120 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             style={{ '--accent': track.accent } as CSSProperties}
-            className="fixed inset-x-3 bottom-3 z-40 mx-auto max-w-4xl rounded-2xl border border-white/10 bg-sea-900/85 p-3 shadow-2xl shadow-black/50 backdrop-blur-xl"
+            className="fixed inset-x-0 bottom-0 z-40 border-t-4 border-[var(--accent)] bg-deep"
           >
-            <div className="absolute inset-x-6 -top-px h-px bg-gradient-to-r from-transparent via-[var(--accent)] to-transparent" aria-hidden="true" />
-            <div className="flex flex-wrap items-center gap-3 md:flex-nowrap">
-              <img src={track.cover} alt="" className="size-12 shrink-0 rounded-lg" />
-              <div className="min-w-0 flex-1 md:w-48 md:flex-none">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent)]">
-                  {status === 'loading' ? t('np.loading') : t('np.nowPlaying')}
+            <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 md:flex-nowrap">
+              <img src={track.cover} alt="" className="size-12 shrink-0 rounded-[3px]" />
+              <div className="min-w-0 flex-1 md:w-56 md:flex-none">
+                <p className="flex items-center gap-2 text-sm">
+                  <span className="font-led text-[var(--accent)]">{code}</span>
+                  <span className="text-haze">{status === 'loading' ? t('np.loading') : t('np.onAir')}</span>
                 </p>
-                <p className="truncate font-semibold">{track.title}</p>
+                <p className="truncate font-bold">{track.title}</p>
               </div>
 
               {status === 'error' ? (
                 <div className="flex flex-1 flex-wrap items-center gap-3 text-sm">
-                  <span className="text-mist">{t('np.error')}</span>
+                  <span>{t('np.error')}</span>
                   {openUrl && (
-                    <a href={openUrl} target="_blank" rel="noopener noreferrer" className="rounded-full bg-aqua px-3 py-1.5 font-semibold text-sea-950">
+                    <a
+                      href={openUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: onColor(track.accent) }}
+                      className="rounded-[3px] bg-[var(--accent)] px-3 py-1.5 font-bold"
+                    >
                       {t('np.openSpotify')}
                     </a>
                   )}
-                  <button type="button" onClick={retry} className="rounded-full border border-white/20 px-3 py-1.5">
+                  <button type="button" onClick={retry} className="rounded-[3px] border border-line px-3 py-1.5 hover:border-ink">
                     {t('np.retry')}
                   </button>
                 </div>
               ) : (
                 <>
                   <div className="flex items-center gap-1">
-                    <button type="button" className={btn} onClick={() => usePlayer.getState().prev()} aria-label={t('np.prev')}>⏮</button>
+                    <button type="button" className={btn} onClick={() => usePlayer.getState().prev()} aria-label={t('np.prev')}><PrevIcon /></button>
                     <button
                       type="button"
                       onClick={() => usePlayer.getState().toggle()}
                       aria-label={playing ? t('np.pause') : t('np.play')}
-                      className="grid size-11 place-items-center rounded-full bg-[var(--accent)] text-sea-950 transition hover:brightness-110"
+                      style={{ color: onColor(track.accent) }}
+                      className="grid size-11 place-items-center rounded-[3px] bg-[var(--accent)] transition hover:brightness-110"
                     >
                       {status === 'loading' ? (
-                        <span className="size-4 animate-spin rounded-full border-2 border-sea-950 border-t-transparent" />
-                      ) : playing ? '❚❚' : '▶'}
+                        <span className="size-4 rounded-full border-2 border-current border-t-transparent motion-safe:animate-spin" />
+                      ) : playing ? <PauseIcon /> : <PlayIcon />}
                     </button>
-                    <button type="button" className={btn} onClick={() => usePlayer.getState().next()} aria-label={t('np.next')}>⏭</button>
+                    <button type="button" className={btn} onClick={() => usePlayer.getState().next()} aria-label={t('np.next')}><NextIcon /></button>
                   </div>
-                  <div className="flex w-full items-center gap-2 text-xs tabular-nums text-mist md:w-auto md:flex-1">
+                  <div className="flex w-full items-center gap-3 font-led text-haze md:w-auto md:flex-1">
                     <span>{fmtTime(drag ?? position)}</span>
                     <Slider.Root
                       className="relative flex h-5 flex-1 touch-none select-none items-center"
@@ -147,29 +157,29 @@ export function Player() {
                         setDrag(null)
                       }}
                     >
-                      <Slider.Track className="relative h-1 grow rounded-full bg-white/15">
-                        <Slider.Range className="absolute h-full rounded-full bg-[var(--accent)]" />
+                      <Slider.Track className="relative h-1 grow bg-line">
+                        <Slider.Range className="absolute h-full bg-[var(--accent)]" />
                       </Slider.Track>
-                      <Slider.Thumb aria-label={t('np.seek')} className="block size-3.5 rounded-full bg-white shadow" />
+                      <Slider.Thumb aria-label={t('np.seek')} className="block h-4 w-1.5 bg-ink" />
                     </Slider.Root>
                     <span>{fmtTime(duration)}</span>
                   </div>
                 </>
               )}
 
-              <div className="ml-auto flex items-center">
+              <div className="ml-auto flex items-center gap-1">
                 {status !== 'error' && openUrl && (
                   <a
                     href={openUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mr-1 inline-block whitespace-nowrap rounded-full border border-white/15 px-3 py-1.5 text-xs text-mist transition hover:text-ink"
+                    className="mr-1 inline-block whitespace-nowrap rounded-[3px] border border-line px-3 py-1.5 text-sm text-haze transition hover:border-ink hover:text-ink"
                   >
                     {t('np.openSpotify')}
                   </a>
                 )}
-                <button type="button" className={btn} onClick={() => usePlayer.getState().setMinimized(true)} aria-label={t('np.minimize')}>▾</button>
-                <button type="button" className={btn} onClick={close} aria-label={t('np.close')}>✕</button>
+                <button type="button" className={btn} onClick={() => usePlayer.getState().setMinimized(true)} aria-label={t('np.minimize')}><MinimizeIcon /></button>
+                <button type="button" className={btn} onClick={close} aria-label={t('np.close')}><CloseIcon /></button>
               </div>
             </div>
           </motion.section>

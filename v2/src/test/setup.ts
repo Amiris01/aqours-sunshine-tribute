@@ -3,9 +3,6 @@ import { afterEach, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
 import { MotionGlobalConfig } from 'motion/react'
 
-// Scroll choreography is decorative; don't lazy-load GSAP in jsdom (the async
-// import would outlive the test environment).
-vi.mock('../motion/gsap', () => ({ loadGsap: () => new Promise(() => {}) }))
 
 // Make Motion finish instantly so exit animations don't delay assertions.
 MotionGlobalConfig.skipAnimations = true

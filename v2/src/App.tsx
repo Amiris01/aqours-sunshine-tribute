@@ -54,7 +54,6 @@ export default function App() {
             </Suspense>
           </ErrorBoundary>
         )}
-        <div className="grain" aria-hidden="true" />
       </MotionConfig>
     </LazyMotion>
   )

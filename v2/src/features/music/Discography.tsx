@@ -1,129 +1,102 @@
-import { useRef, useState, type CSSProperties } from 'react'
-import { AnimatePresence, m as motion } from 'motion/react'
-import { prefersReducedMotion } from '../../lib/motionPref'
+import { useRef, useState, type CSSProperties, type KeyboardEvent } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { releases } from '../../content/discography'
 import { pick } from '../../content/types'
+import { onColor } from '../../lib/color'
+import { PauseIcon, PlayIcon } from '../../lib/icons'
+import { SectionHeading } from '../../lib/SectionHeading'
 import { usePlayer } from '../../store/player'
 import { useLang } from '../../store/lang'
 import { useT } from '../../i18n'
 
-const YEARS = [...new Set(releases.map((r) => r.year))]
+const code = (i: number) => `M${String(i + 1).padStart(2, '0')}`
 
+/** The discography as a concert setlist: M01…M08 in release order. */
 export function Discography() {
   const t = useT()
   const lang = useLang((s) => s.lang)
   const [sel, setSel] = useState(0)
   const { playingIndex, status } = usePlayer(useShallow((s) => ({ playingIndex: s.index, status: s.status })))
-  const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
-  const r = releases[sel]!
-  const isCurrent = playingIndex === sel
-  const spinning = isCurrent && status === 'playing'
+  const rowRefs = useRef<(HTMLButtonElement | null)[]>([])
 
-  const select = (i: number, focus = false) => {
-    const n = (i + releases.length) % releases.length
+  const onKey = (e: KeyboardEvent, i: number) => {
+    const d = e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0
+    if (!d) return
+    e.preventDefault()
+    const n = (i + d + releases.length) % releases.length
     setSel(n)
-    const el = itemRefs.current[n]
-    if (focus) el?.focus()
-    el?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', inline: 'center', block: 'nearest' })
+    rowRefs.current[n]?.focus()
   }
 
   return (
-    <section id="music" className="relative scroll-mt-20 overflow-hidden py-28" style={{ '--accent': r.accent } as CSSProperties}>
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_30%_40%,color-mix(in_oklab,var(--accent)_18%,transparent),transparent)] transition-colors duration-700" aria-hidden="true" />
-      <div className="relative mx-auto max-w-6xl px-4">
-        <p className="text-xs uppercase tracking-[0.25em] text-aqua">{t('disc.eyebrow')}</p>
-        <h2 className="mt-4 font-display text-4xl md:text-6xl">{t('disc.h2')}</h2>
-
-        <div className="mt-12 grid items-center gap-10 md:grid-cols-2">
-          {/* Vinyl + cover */}
-          <div className="relative mx-auto aspect-square w-full max-w-md">
-            <div
-              className={`absolute right-0 top-1/2 aspect-square w-[80%] -translate-y-1/2 rounded-full shadow-[0_0_80px_-10px_var(--accent)] ${spinning ? 'motion-safe:animate-spin-slow' : ''}`}
-              style={{ background: 'repeating-radial-gradient(circle, #0b0b0f 0 2px, #16161d 2px 4px)' }}
-              aria-hidden="true"
-              data-testid="vinyl"
-            >
-              <img src={r.cover} alt="" className="absolute left-1/2 top-1/2 size-[34%] -translate-x-1/2 -translate-y-1/2 rounded-full object-cover" />
-              <span className="absolute left-1/2 top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sea-950" />
-            </div>
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={r.id}
-                src={r.cover}
-                alt={t('disc.cover', { title: r.title })}
-                initial={{ opacity: 0, x: -24, rotate: -3 }}
-                animate={{ opacity: 1, x: 0, rotate: 0 }}
-                exit={{ opacity: 0, x: 24, rotate: 3 }}
-                transition={{ duration: 0.35 }}
-                className="absolute left-0 top-[12%] w-[64%] rounded-xl shadow-2xl shadow-black/60"
-              />
-            </AnimatePresence>
-          </div>
-
-          {/* Detail */}
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-              {r.year} · {pick(r.kind, lang)}
-            </p>
-            <h3 className="mt-3 font-display text-3xl md:text-5xl">{r.title}</h3>
-            <p lang="ja" className="mt-2 text-mist">{r.titleJp}</p>
-            <p data-testid="release-blurb" className="mt-5 max-w-md leading-relaxed text-ink/90">{pick(r.blurb, lang)}</p>
-            <button
-              type="button"
-              onClick={() => (isCurrent && status !== 'error' ? usePlayer.getState().toggle() : usePlayer.getState().playAt(sel))}
-              className="mt-8 inline-flex items-center gap-3 rounded-full bg-[var(--accent)] px-6 py-3 font-semibold text-sea-950 transition hover:brightness-110"
-            >
-              <span aria-hidden="true">{spinning ? '❚❚' : '▶'}</span>
-              {spinning ? t('np.pause') : t('disc.playThis')}
-            </button>
-            <p className="mt-4 max-w-sm text-xs text-mist">{t('np.previewNote')}</p>
-          </div>
-        </div>
-
-        {/* Year scrubber */}
-        <div role="group" aria-label={t('disc.years')} className="mt-14 flex flex-wrap gap-2">
-          {YEARS.map((y) => (
-            <button
-              key={y}
-              type="button"
-              aria-pressed={r.year === y}
-              onClick={() => select(releases.findIndex((x) => x.year === y))}
-              className="rounded-full border border-white/10 px-3 py-1 text-sm tabular-nums text-mist transition aria-pressed:border-[var(--accent)] aria-pressed:text-ink"
-            >
-              {y}
-            </button>
-          ))}
-        </div>
-
-        {/* Shelf */}
-        <ul
-          aria-label={t('disc.shelf')}
-          className="mt-6 flex snap-x gap-4 overflow-x-auto pb-4"
-          onKeyDown={(e) => {
-            if (e.key === 'ArrowRight') { e.preventDefault(); select(sel + 1, true) }
-            if (e.key === 'ArrowLeft') { e.preventDefault(); select(sel - 1, true) }
-          }}
-        >
-          {releases.map((x, i) => (
-            <li key={x.id} className="shrink-0 snap-center">
+    <section id="music" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-28">
+      <SectionHeading title="disc.h2" lead="disc.lead" />
+      <ol className="mt-12 border-t border-line">
+        {releases.map((r, i) => {
+          const open = i === sel
+          const onAir = playingIndex === i && status !== 'idle' && status !== 'error'
+          const playing = playingIndex === i && status === 'playing'
+          return (
+            <li key={r.id} className="border-b border-line" style={{ '--accent': r.accent } as CSSProperties}>
               <button
                 ref={(el) => {
-                  itemRefs.current[i] = el
+                  rowRefs.current[i] = el
                 }}
                 type="button"
-                aria-pressed={i === sel}
-                tabIndex={i === sel ? 0 : -1}
-                aria-label={`${x.title} (${x.year})`}
-                onClick={() => select(i)}
-                className="block rounded-xl p-1 opacity-60 transition hover:opacity-100 aria-pressed:opacity-100 aria-pressed:ring-2 aria-pressed:ring-[var(--accent)]"
+                aria-label={`${code(i)} ${r.title} (${r.titleJp}), ${r.year}${onAir ? `, ${t('np.onAir')}` : ''}`}
+                aria-expanded={open}
+                aria-controls={`setlist-${r.id}`}
+                onClick={() => setSel(i)}
+                onKeyDown={(e) => onKey(e, i)}
+                className="grid w-full grid-cols-[3.25rem_1fr_auto] items-baseline gap-x-4 py-5 text-left transition hover:bg-deep/60 md:grid-cols-[4.5rem_1fr_14rem_4rem]"
               >
-                <img src={x.cover} alt="" loading="lazy" className="size-28 rounded-lg md:size-36" />
+                <span className={`font-led text-lg ${onAir ? 'text-[var(--accent)]' : 'text-haze'}`}>
+                  {code(i)}
+                </span>
+                <span>
+                  <span lang="ja" className="block text-xl font-bold leading-snug md:text-2xl">{r.titleJp}</span>
+                  <span className="mt-1 block text-haze">{r.title}</span>
+                  {onAir && (
+                    <span className="mt-2 inline-flex items-center gap-2 text-sm font-bold text-[var(--accent)]">
+                      <span aria-hidden="true" className="size-2 rounded-full bg-[var(--accent)] motion-safe:animate-pulse" />
+                      {t('np.onAir')}
+                    </span>
+                  )}
+                </span>
+                <span className="hidden text-sm text-haze md:block">{pick(r.kind, lang)}</span>
+                <span className="font-led text-lg">{r.year}</span>
               </button>
+              {open && (
+                <div id={`setlist-${r.id}`} className="grid gap-6 pb-8 md:grid-cols-[4.5rem_11rem_1fr] md:gap-x-4">
+                  <span aria-hidden="true" className="hidden md:block" />
+                  <img
+                    src={r.cover}
+                    alt={t('disc.cover', { title: r.title })}
+                    className="size-40 rounded-[4px] object-cover md:size-44"
+                  />
+                  <div className="md:pl-4">
+                    <p className="text-sm text-haze md:hidden">{pick(r.kind, lang)}</p>
+                    <p data-testid="release-blurb" className="max-w-[52ch] text-lg leading-relaxed">{pick(r.blurb, lang)}</p>
+                    <button
+                      type="button"
+                      aria-label={playing ? t('np.pause') : t('disc.playThis', { title: r.title })}
+                      onClick={() =>
+                        playingIndex === i && status !== 'error' ? usePlayer.getState().toggle() : usePlayer.getState().playAt(i)
+                      }
+                      style={{ color: onColor(r.accent) }}
+                      className="mt-6 inline-flex items-center gap-3 rounded-[3px] bg-[var(--accent)] px-5 py-3 font-bold transition hover:brightness-110"
+                    >
+                      {playing ? <PauseIcon /> : <PlayIcon />}
+                      {playing ? t('np.pause') : t('np.play')}
+                    </button>
+                    <p className="mt-4 max-w-[52ch] text-sm text-haze">{t('np.previewNote')}</p>
+                  </div>
+                </div>
+              )}
             </li>
-          ))}
-        </ul>
-      </div>
+          )
+        })}
+      </ol>
     </section>
   )
 }

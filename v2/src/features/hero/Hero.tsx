@@ -3,9 +3,11 @@ import { m as motion, useReducedMotion } from 'motion/react'
 import { useT } from '../../i18n'
 import { asset } from '../../lib/asset'
 import { hasWebGL } from '../../lib/webgl'
+import { PlayIcon } from '../../lib/icons'
 import { usePlayer } from '../../store/player'
-import { HeroFallback } from './HeroFallback'
 import { ErrorBoundary } from '../../lib/ErrorBoundary'
+import { HeroFallback } from './HeroFallback'
+import { Penlights } from './Penlights'
 
 const SeaScene = lazy(() => import('./SeaScene'))
 
@@ -29,7 +31,7 @@ export function Hero() {
   const show3d = webgl && !reduce && !failed && visible
 
   return (
-    <section ref={ref} id="hero" className="relative flex min-h-svh items-end overflow-hidden pb-20 pt-28">
+    <section ref={ref} id="hero" className="relative flex min-h-svh flex-col justify-end overflow-hidden">
       <HeroFallback sea={!show3d} />
       {show3d && (
         <ErrorBoundary fallback={null} onError={() => setFailed(true)}>
@@ -38,41 +40,43 @@ export function Hero() {
           </Suspense>
         </ErrorBoundary>
       )}
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-sea-950 to-transparent" aria-hidden="true" />
+      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-night via-night/70 to-transparent" aria-hidden="true" />
+
+      {/* The one orchestrated entrance on the page. */}
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 mx-auto w-full max-w-6xl px-4"
+        className="relative z-10 mx-auto w-full max-w-6xl px-4 pt-28"
       >
         <div className="flex items-center gap-3">
           <img src={asset(t('hero.seriesLogo'))} alt={t('hero.seriesLogoAlt')} className="h-8 w-auto md:h-10" />
-          <span className="rounded-full border border-white/15 px-2.5 py-1 text-[11px] uppercase tracking-[0.2em] text-mist">
-            {t('hero.eyebrowTag')}
-          </span>
+          <span className="text-sm text-haze">{t('hero.eyebrowTag')}</span>
         </div>
-        <h1 className="mt-6">
+        <h1 className="mt-5">
           <img
             src={asset('assets/logo/aqours-logo.webp')}
             alt="Aqours"
             width={900}
             height={336}
             fetchPriority="high"
-            className="h-24 w-auto drop-shadow-[0_0_40px_rgba(63,214,255,0.35)] md:h-36" />
+            className="h-20 w-auto md:h-28"
+          />
         </h1>
-        <p className="mt-6 max-w-2xl font-display text-3xl leading-tight md:text-5xl">{t('hero.tagline')}</p>
-        <div className="mt-10 flex flex-wrap items-center gap-6">
-          <button
-            type="button"
-            onClick={() => usePlayer.getState().playAt(0)}
-            className="group flex items-center gap-3 rounded-full bg-aqua px-6 py-3.5 font-semibold text-sea-950 shadow-[0_0_40px_-6px_rgba(63,214,255,0.7)] transition hover:brightness-110"
-          >
-            <span className="grid size-7 place-items-center rounded-full bg-sea-950 text-xs text-aqua" aria-hidden="true">▶</span>
-            {t('hero.play')}
-          </button>
-          <a href="#about" className="text-sm text-mist transition hover:text-ink">{t('hero.scrollCue')} ↓</a>
-        </div>
+        <p className="mt-6 max-w-4xl font-display text-[clamp(1.9rem,5.2vw,4.25rem)] leading-[1.12]">{t('hero.tagline')}</p>
+        <button
+          type="button"
+          onClick={() => usePlayer.getState().playAt(0)}
+          className="mt-9 inline-flex items-center gap-3 rounded-[3px] bg-ink px-5 py-3 font-bold text-night transition hover:bg-white"
+        >
+          <PlayIcon />
+          {t('hero.play')}
+        </button>
       </motion.div>
+
+      <div className="mt-12 md:mt-16">
+        <Penlights />
+      </div>
     </section>
   )
 }

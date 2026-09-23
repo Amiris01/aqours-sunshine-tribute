@@ -1,47 +1,46 @@
-import { m as motion } from 'motion/react'
+import type { CSSProperties } from 'react'
 import { subunits } from '../../content/subunits'
-import { memberAssets } from '../../content/members'
 import { asset } from '../../lib/asset'
+import { SectionHeading } from '../../lib/SectionHeading'
 import { useT } from '../../i18n'
 
+/** Each unit gets a full-width stage banner in its colour, members as penlights. */
 export function SubUnits() {
   const t = useT()
   return (
-    <section id="units" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-28">
-      <p className="text-xs uppercase tracking-[0.25em] text-aqua">{t('subunits.eyebrow')}</p>
-      <h2 className="mt-4 font-display text-4xl md:text-6xl">{t('subunits.h2')}</h2>
-      <p className="mt-4 max-w-2xl text-mist">{t('subunits.lead')}</p>
-      <div className="mt-12 grid gap-4 md:grid-cols-3">
-        {subunits.map((u, i) => (
-          <motion.article
+    <section id="units" className="scroll-mt-20 py-28">
+      <div className="mx-auto max-w-6xl px-4">
+        <SectionHeading title="subunits.h2" lead="subunits.lead" />
+      </div>
+      <div className="mt-12 space-y-2">
+        {subunits.map((u) => (
+          <article
             key={u.name}
-            initial={{ opacity: 0, y: 32 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-10%' }}
-            transition={{ duration: 0.6, delay: i * 0.1 }}
-            className="relative overflow-hidden rounded-3xl border border-white/10 bg-sea-900 p-6"
+            style={{ '--u': u.color } as CSSProperties}
+            className="grid bg-deep md:grid-cols-[minmax(17rem,30%)_1fr]"
           >
-            <div
-              className="absolute inset-0"
-              style={{ background: `radial-gradient(120% 80% at 0% 0%, color-mix(in oklab, ${u.color} 35%, transparent), transparent 60%)` }}
-              aria-hidden="true"
-            />
-            <h3 className="relative">
-              <span className="inline-flex rounded-xl bg-white/90 px-3 py-2">
-                <img src={asset(u.logo)} alt={u.name} className="h-10 w-auto" />
+            {/* The unit's own colour, solid, like the banner hung for its stage. */}
+            <h3 className="flex items-center justify-center bg-[var(--u)] px-6 py-8">
+              <span className="inline-flex rounded-[3px] bg-white px-4 py-3">
+                <img src={asset(u.logo)} alt={u.name} className="h-11 w-auto" />
               </span>
             </h3>
-            <p className="relative mt-4 text-mist">{t(`subunit.tagline.${u.name}`)}</p>
-            <ul className="relative mt-6 space-y-2">
-              {u.members.map((m) => (
-                <li key={m.num} className="flex items-center gap-3">
-                  <img src={memberAssets(m).emblem} alt="" className="size-8" />
-                  <span>{m.name}</span>
-                  <span className="ml-auto size-2.5 rounded-full" style={{ background: m.color }} aria-hidden="true" />
-                </li>
-              ))}
-            </ul>
-          </motion.article>
+            <div className="grid items-center gap-6 px-4 py-8 md:grid-cols-[1fr_auto] md:gap-10 md:px-10 lg:pr-[max(2.5rem,calc((100vw-72rem)/2))]">
+              <p className="max-w-[44ch] text-lg">{t(`subunit.tagline.${u.name}`)}</p>
+              <ul className="flex gap-6">
+                {u.members.map((m) => (
+                  <li key={m.num} className="flex flex-col items-center gap-2">
+                    <span
+                      aria-hidden="true"
+                      className="block h-12 w-2 rounded-full"
+                      style={{ background: m.color, boxShadow: `0 0 14px 2px ${m.color}` }}
+                    />
+                    <span className="text-sm">{m.name}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </article>
         ))}
       </div>
     </section>

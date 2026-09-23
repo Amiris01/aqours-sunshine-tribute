@@ -5,26 +5,24 @@ export const en = {
 
   'nav.members': 'Members',
   'nav.units': 'Units',
-  'nav.music': 'Music',
-  'nav.journey': 'Journey',
+  'nav.music': "Setlist",
+  'nav.journey': "Timeline",
   'nav.home': 'Aqours — back to top',
 
   'hero.seriesLogo': 'assets/logo/Lovelive_sunshine_en.webp',
   'hero.seriesLogoAlt': 'Love Live! Sunshine!! — School idol project',
-  'hero.eyebrowTag': 'Fan Tribute',
+  'hero.eyebrowTag': "Fan tribute",
   'hero.tagline': 'Shine with us — here, now, by the sea.',
-  'hero.play': 'Play Aqours',
+  'hero.play': "Play from M01",
   'hero.scrollCue': 'Scroll to dive in',
 
-  'about.eyebrow': 'School Idol Project',
   'about.h2': 'Nine girls, one shining sea.',
   'about.lead':
     "Aqours is the school idol group of Uranohoshi Girls' High School in Uchiura, Numazu, on Japan's sun-soaked Shizuoka coast. Inspired by the legendary μ's and refusing to watch their school close, nine friends chase a single radiant dream — to shine, here and now, with everything they've got.",
   'about.foot': 'Nine members, three sub-units, since 2015.',
 
-  'members.eyebrow': 'Meet Aqours',
-  'members.h2': 'Nine hearts, nine colors.',
-  'members.lead': 'Each member shines in her own image color. Choose one to meet her.',
+  'members.h2': "The nine of Uranohoshi",
+  'members.lead': "Choose a ticket to open her profile.",
   'members.open': 'Open {name}',
   'members.prev': 'Previous member',
   'members.next': 'Next member',
@@ -55,18 +53,14 @@ export const en = {
   'blurb.08': 'The free-spirited school director and hotel heiress who lives loud and shines even louder.',
   'blurb.09': 'The shy youngest who blossoms brightest under the stage lights.',
 
-  'subunits.eyebrow': 'Three Sub-units',
-  'subunits.h2': 'Smaller groups, same shine.',
+  'subunits.h2': "Three units",
   'subunits.lead': 'Beyond the full nine, Aqours splits into three sub-units — each with its own sound and style.',
   'subunit.tagline.CYaRon!': 'Bright, energetic, and full of seaside sunshine.',
   'subunit.tagline.AZALEA': 'Cool, composed, and effortlessly elegant.',
   'subunit.tagline.Guilty Kiss': 'Bold, sultry, and unmistakably striking.',
 
-  'disc.eyebrow': 'Discography · 2015–2024',
-  'disc.h2': 'Songs that shine.',
-  'disc.playThis': 'Play',
-  'disc.years': 'Jump to year',
-  'disc.shelf': 'Releases',
+  'disc.h2': "Setlist",
+  'disc.playThis': "Play {title}",
   'disc.cover': '{title} cover art',
 
   'np.region': 'Music player',
@@ -85,8 +79,12 @@ export const en = {
   'np.retry': 'Retry',
   'np.previewNote': 'Full tracks need a Spotify login; otherwise you hear a preview.',
 
-  'journey.eyebrow': 'The Journey',
-  'journey.h2': 'From zero to Eikyuu.',
+  'journey.h2': 'Timeline',
+
+  'hero.penlight': "{name}: open profile",
+  'hero.penlights': "Penlights — choose a member",
+  'disc.lead': "Eight Aqours songs, 2015 to 2024, in release order.",
+  'np.onAir': "On air",
 
   'foot.mark': 'Shine!!',
   'foot.sub': 'Aqours, forever sunshine.',
