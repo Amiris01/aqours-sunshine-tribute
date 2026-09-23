@@ -11,6 +11,7 @@ import { About } from './features/about/About'
 import { Members } from './features/members/Members'
 import { SubUnits } from './features/subunits/SubUnits'
 import { Discography } from './features/music/Discography'
+import { Journey } from './features/journey/Journey'
 
 export default function App() {
   const t = useT()
@@ -30,6 +31,7 @@ export default function App() {
         <Members />
         <SubUnits />
         <Discography />
+        <Journey />
       </main>
       <Footer />
       <Player />
